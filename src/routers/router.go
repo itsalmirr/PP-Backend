@@ -3,6 +3,7 @@ package routers
 import (
 	"net/http"
 
+	"backend.com/go-backend/src/controllers"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,6 +18,8 @@ func SetupRouter() *gin.Engine {
 				"message": "OK",
 			})
 		})
+
+		public.POST("/users", controllers.CreateUser)
 	}
 
 	return router

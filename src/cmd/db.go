@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"backend.com/go-backend/src/models"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -29,6 +30,12 @@ func ConnectDatabase() {
 	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("Failed to connect to database!")
+	}
+
+	err = database.AutoMigrate(&models.User{})
+
+	if err != nil {
+		panic("Failed to migrate database!")
 	}
 
 	fmt.Println("Database connected!")
