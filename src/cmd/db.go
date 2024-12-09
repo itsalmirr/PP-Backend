@@ -1,4 +1,4 @@
-package models
+package cmd
 
 import (
 	"gorm.io/driver/postgres"
