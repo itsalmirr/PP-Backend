@@ -1,8 +1,6 @@
 package routers
 
 import (
-	"net/http"
-
 	"backend.com/go-backend/src/controllers"
 	"github.com/gin-gonic/gin"
 )
@@ -13,13 +11,12 @@ func SetupRouter() *gin.Engine {
 	// Public routes
 	public := router.Group("/api/v1")
 	{
-		public.GET("/", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{
-				"message": "OK",
-			})
-		})
-
-		public.POST("/users", controllers.CreateUser)
+		// Group of user routes
+		userRoutes := public.Group("/users")
+		{
+			userRoutes.POST("/", controllers.CreateUser)
+			userRoutes.GET("/:username", controllers.GetUser)
+		}
 	}
 
 	return router

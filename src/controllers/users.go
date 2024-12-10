@@ -7,6 +7,7 @@ import (
 	"backend.com/go-backend/src/models"
 	"github.com/alexedwards/argon2id"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type CreateUserInput struct {
@@ -18,11 +19,27 @@ type CreateUserInput struct {
 	IsStaff  bool   `json:"is_staff"`
 }
 
+// CreateUser godoc
+// @Summary Create a new user
+// @Description Create a new user with the input payload
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param input body CreateUserInput true "User input"
+// @Endpoint /users [post]
 func CreateUser(c *gin.Context) {
 	// Create a new user
 	var input CreateUserInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Check if user already exists
+	var existingUser models.User
+	if err := cmd.DB.Where("email = ? OR username = ?", input.Email, input.Username).
+		First(&existingUser).Error; err == nil {
+		c.JSON(http.StatusConflict, gin.H{"error": "User already exists"})
 		return
 	}
 
@@ -32,17 +49,44 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	input.Password = hashedPassword
-
 	user := models.User{
 		Avatar:   input.Avatar,
 		Email:    input.Email,
 		Username: input.Username,
 		FullName: input.FullName,
-		Password: input.Password,
+		Password: hashedPassword,
 		IsStaff:  input.IsStaff,
 	}
+	tx := cmd.DB.Begin()
+	if err := tx.Create(&user).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to create user!"})
+		return
+	}
+	tx.Commit()
 
-	cmd.DB.Create(&user)
+	c.JSON(http.StatusOK, gin.H{"data": user})
+}
+
+// GetUser godoc
+// @Summary Get a user by username
+// @Description Get a user by username
+func GetUser(c *gin.Context) {
+	username := c.Param("username")
+	var user models.User
+
+	if err := cmd.DB.Select("id", "avatar", "email", "username", "full_name", "start_date", "is_staff", "is_active").Where("username = ?", username).First(&user).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "User not found!",
+			})
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to get user!",
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{"data": user})
 }
