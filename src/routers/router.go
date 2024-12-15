@@ -1,12 +1,9 @@
 package routers
 
 import (
-	"os"
-
 	"backend.com/go-backend/src/controllers"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"golang.org/x/oauth2"
 )
 
 func SetupRouter() *gin.Engine {
@@ -16,13 +13,13 @@ func SetupRouter() *gin.Engine {
 		panic("Failed to load .env file!")
 	}
 	// OAuth2 configuration
-	conf := &oauth2.Config{
-		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
-		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
-		Scopes:       []string{"profile", "email"},
-		Endpoint:     googleOAuth.Endpoint,
-		RedirectURL:  "http://localhost:8080/auth/callback",
-	}
+	// conf := &oauth2.Config{
+	// 	ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
+	// 	ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
+	// 	Scopes:       []string{"profile", "email"},
+	// 	Endpoint:     googleOAuth.Endpoint,
+	// 	RedirectURL:  "http://localhost:8080/auth/callback",
+	// }
 	router := gin.Default()
 
 	// Public routes
