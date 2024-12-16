@@ -16,6 +16,17 @@ type CreateRealtorInput struct {
 	IsMVP       bool   `json:"is_mvp"`
 }
 
+// CreateRealtorRepository creates a new realtor record in the database.
+// It first checks if a realtor with the given email or phone already exists.
+// If such a realtor exists, it returns an error.
+// If not, it creates a new realtor record with the provided data.
+// The operation is performed within a transaction to ensure atomicity.
+//
+// Parameters:
+//   - data: CreateRealtorInput containing the details of the realtor to be created.
+//
+// Returns:
+//   - error: An error if the realtor already exists or if the creation fails, otherwise nil.
 func CreateRealtorRepository(data CreateRealtorInput) error {
 	// check if realtor already exists
 	var existingRealtor models.Realtor
