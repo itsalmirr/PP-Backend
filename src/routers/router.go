@@ -1,7 +1,7 @@
 package routers
 
 import (
-	"backend.com/go-backend/src/cmd/api"
+	"backend.com/go-backend/src/api"
 	"github.com/gin-gonic/gin"
 )
 

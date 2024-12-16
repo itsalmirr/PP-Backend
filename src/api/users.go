@@ -3,7 +3,7 @@ package api
 import (
 	"net/http"
 
-	"backend.com/go-backend/src/cmd"
+	"backend.com/go-backend/src/config"
 	"backend.com/go-backend/src/models"
 	"github.com/alexedwards/argon2id"
 	"github.com/gin-gonic/gin"
@@ -37,7 +37,7 @@ func CreateUser(c *gin.Context) {
 
 	// Check if user already exists
 	var existingUser models.User
-	if err := cmd.DB.Where("email = ? OR username = ?", input.Email, input.Username).
+	if err := config.DB.Where("email = ? OR username = ?", input.Email, input.Username).
 		First(&existingUser).Error; err == nil {
 		c.JSON(http.StatusConflict, gin.H{"error": "User already exists"})
 		return
@@ -57,7 +57,7 @@ func CreateUser(c *gin.Context) {
 		Password: hashedPassword,
 		IsStaff:  input.IsStaff,
 	}
-	tx := cmd.DB.Begin()
+	tx := config.DB.Begin()
 	if err := tx.Create(&user).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to create user!"})
 		return
@@ -74,7 +74,7 @@ func GetUser(c *gin.Context) {
 	username := c.Param("username")
 	var user models.User
 
-	if err := cmd.DB.Select("id", "avatar", "email", "username", "full_name", "start_date", "is_staff", "is_active").Where("username = ?", username).First(&user).Error; err != nil {
+	if err := config.DB.Select("id", "avatar", "email", "username", "full_name", "start_date", "is_staff", "is_active").Where("username = ?", username).First(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			c.JSON(http.StatusNotFound, gin.H{
 				"error": "User not found!",
