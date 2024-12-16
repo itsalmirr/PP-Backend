@@ -16,7 +16,7 @@ func CreateRealtor(c *gin.Context) {
 
 	err := repositories.CreateRealtorRepository(input)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create realtor", "message": err.Error()})
 		return
 	}
 
