@@ -9,5 +9,6 @@ import (
 func Server() *gin.Engine {
 	config.ConnectDatabase()
 	router := routers.SetupRouter()
+
 	return router
 }
