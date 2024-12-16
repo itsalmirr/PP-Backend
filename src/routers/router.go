@@ -1,25 +1,11 @@
 package routers
 
 import (
-	"backend.com/go-backend/src/controllers"
+	"backend.com/go-backend/src/cmd/api"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 func SetupRouter() *gin.Engine {
-	// Load .env file
-	err := godotenv.Load()
-	if err != nil {
-		panic("Failed to load .env file!")
-	}
-	// OAuth2 configuration
-	// conf := &oauth2.Config{
-	// 	ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
-	// 	ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
-	// 	Scopes:       []string{"profile", "email"},
-	// 	Endpoint:     googleOAuth.Endpoint,
-	// 	RedirectURL:  "http://localhost:8080/auth/callback",
-	// }
 	router := gin.Default()
 
 	// Public routes
@@ -28,8 +14,8 @@ func SetupRouter() *gin.Engine {
 		// Group of user routes
 		userRoutes := public.Group("/users")
 		{
-			userRoutes.POST("/", controllers.CreateUser)
-			userRoutes.GET("/:username", controllers.GetUser)
+			userRoutes.POST("/", api.CreateUser)
+			userRoutes.GET("/:username", api.GetUser)
 		}
 	}
 	return router
