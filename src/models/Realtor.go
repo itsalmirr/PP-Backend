@@ -10,7 +10,6 @@ import (
 type Realtor struct {
 	ID          uuid.UUID `gorm:"type:uuid;primary_key;default:gen_random_uuid()"` // Primary key with UUID
 	FullName    string    `gorm:"type:varchar(100);not null"`
-	Slug        string    `gorm:"type:varchar(50);uniqueIndex"`                            // Unique slug field
 	Photo       string    `gorm:"type:varchar(255)"`                                       // Optional photo path
 	Description string    `gorm:"type:text"`                                               // Optional description
 	Phone       string    `gorm:"type:varchar(15);not null"`                               // Phone number
