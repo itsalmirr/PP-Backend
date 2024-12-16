@@ -6,6 +6,7 @@ import (
 	"backend.com/go-backend/src/config"
 	"backend.com/go-backend/src/models"
 	"github.com/alexedwards/argon2id"
+	"gorm.io/gorm"
 )
 
 type CreateUserInput struct {
@@ -46,4 +47,16 @@ func CreateUserRepository(data CreateUserInput) error {
 	}
 	tx.Commit()
 	return nil
+}
+
+func GetUserRepository(email string) (models.User, error) {
+	var user models.User
+
+	if err := config.DB.Select("id", "avatar", "email", "username", "full_name", "start_date", "is_staff", "is_active").Where("email = ?", email).First(&user).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return user, errors.New("user not found")
+		}
+		return user, errors.New("failed to get user")
+	}
+	return user, nil
 }

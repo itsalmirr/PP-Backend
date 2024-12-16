@@ -16,8 +16,13 @@ func SetupRouter() *gin.Engine {
 			userRoutes.POST("/", api.CreateUser)
 			userRoutes.GET("/:username", api.GetUser)
 		}
+		// Group of realtor routes
+		realtorRoutes := public.Group("/realtors")
+		{
+			realtorRoutes.POST("/", api.GetUser)
+		}
 	}
-
+	// Private routes
 	private := router.Group(("api/v1"))
 	{
 		// Group of realtor routes
