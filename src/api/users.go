@@ -5,19 +5,10 @@ import (
 
 	"backend.com/go-backend/src/config"
 	"backend.com/go-backend/src/models"
-	"github.com/alexedwards/argon2id"
+	"backend.com/go-backend/src/repositories"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
-
-type CreateUserInput struct {
-	Avatar   string `json:"avatar"`
-	Email    string `json:"email" binding:"required"`
-	Username string `json:"username" binding:"required"`
-	FullName string `json:"full_name" binding:"required"`
-	Password string `json:"password" binding:"required"`
-	IsStaff  bool   `json:"is_staff"`
-}
 
 // CreateUser godoc
 // @Summary Create a new user
@@ -29,42 +20,19 @@ type CreateUserInput struct {
 // @Endpoint /users [post]
 func CreateUser(c *gin.Context) {
 	// Create a new user
-	var input CreateUserInput
+	var input repositories.CreateUserInput
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input", "message": "Please provide required fields"})
 		return
 	}
 
-	// Check if user already exists
-	var existingUser models.User
-	if err := config.DB.Where("email = ? OR username = ?", input.Email, input.Username).
-		First(&existingUser).Error; err == nil {
-		c.JSON(http.StatusConflict, gin.H{"error": "User already exists"})
-		return
-	}
-
-	hashedPassword, err := argon2id.CreateHash(input.Password, argon2id.DefaultParams)
+	err := repositories.CreateUserRepository(input)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password!"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	user := models.User{
-		Avatar:   input.Avatar,
-		Email:    input.Email,
-		Username: input.Username,
-		FullName: input.FullName,
-		Password: hashedPassword,
-		IsStaff:  input.IsStaff,
-	}
-	tx := config.DB.Begin()
-	if err := tx.Create(&user).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to create user!"})
-		return
-	}
-	tx.Commit()
-
-	c.JSON(http.StatusOK, gin.H{"data": user})
+	c.JSON(http.StatusOK, gin.H{"status": "OK", "data": "User created!"})
 }
 
 // GetUser godoc

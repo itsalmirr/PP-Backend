@@ -37,7 +37,7 @@ func CreateRealtorRepository(data CreateRealtorInput) error {
 	// Start a new transaction
 	tx := config.DB.Begin()
 	if err := tx.Create(&realtor).Error; err != nil {
-		return errors.New("Failed to create realtor")
+		return errors.New("failed to create realtor")
 	}
 	tx.Commit()
 	return nil
