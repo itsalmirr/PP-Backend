@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"backend.com/go-backend/src/models"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -33,7 +32,7 @@ func ConnectDatabase() {
 	}
 
 	// migrate models
-	database.AutoMigrate(&models.Realtor{})
+	// database.AutoMigrate(&models.Realtor{})
 	fmt.Println("Database connected!")
 	DB = database // Assign the database connection to the global variable
 }

@@ -5,6 +5,7 @@ import (
 
 	"backend.com/go-backend/src/config"
 	"backend.com/go-backend/src/models"
+	"gorm.io/gorm"
 )
 
 type CreateRealtorInput struct {
@@ -52,4 +53,19 @@ func CreateRealtorRepository(data CreateRealtorInput) error {
 	}
 	tx.Commit()
 	return nil
+}
+
+// GetRealtorRepository retrieves a realtor record from the database based on the provided email.
+// It returns a models.Realtor object and an error if any occurred during the query.
+// If the realtor is not found, it returns an error indicating "user not found".
+// If there is any other error during the query, it returns an error indicating "failed to get user".
+func GetRealtorRepository(email string) (models.Realtor, error) {
+	var realtor models.Realtor
+	if err := config.DB.Select("id", "email", "full_name", "is_mvp").Where("email = ?", email).First(&realtor).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return realtor, errors.New("realtor not found")
+		}
+		return realtor, errors.New("failed to get realtor")
+	}
+	return realtor, nil
 }
