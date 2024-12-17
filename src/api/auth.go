@@ -44,7 +44,3 @@ func SignIn(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"status": "OK", "data": "User signed in!"})
 }
-
-func Dashboard(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"status": "OK", "data": "Welcome to the dashboard!", "user": "you"})
-}

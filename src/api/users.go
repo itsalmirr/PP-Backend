@@ -35,6 +35,10 @@ func CreateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "OK", "data": "User created!"})
 }
 
+func Dashboard(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"status": "OK", "data": "Welcome to the dashboard!", "user": "you"})
+}
+
 // GetUser handles the HTTP request to retrieve a user by email.
 // @Summary Get user by email
 // @Description Get user by email from the repository
