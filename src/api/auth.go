@@ -9,6 +9,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// SignIn handles user sign-in requests.
+// It expects a JSON payload with "email" and "password" fields.
+// If the input is invalid, it returns a 400 status code with an error message.
+// If the user does not exist or the password is incorrect, it returns a 401 status code with an error message.
+// If there is an internal server error, it returns a 500 status code with an error message.
+// On successful sign-in, it creates a session and returns a 200 status code with a success message.
 func SignIn(c *gin.Context) {
 	type SignInInput struct {
 		Email    string `json:"email" binding:"required"`
@@ -23,7 +29,6 @@ func SignIn(c *gin.Context) {
 
 	// Check if user exists
 	user, err := repositories.GetUserRepository(input.Email)
-	println("User:", user.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user", "message": err.Error()})
 		return
