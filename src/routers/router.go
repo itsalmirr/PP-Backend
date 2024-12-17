@@ -17,9 +17,8 @@ func SetupRouter(session_store redis.Store) *gin.Engine {
 		userRoutes := public.Group("/users")
 		{
 			userRoutes.POST("/", api.CreateUser)
-			userRoutes.GET("/:email", api.GetUser)
+			// userRoutes.GET("/:email", api.GetUser)
 			userRoutes.POST("/signin", api.SignIn)
-			userRoutes.GET("/me", api.Dashboard)
 		}
 		// Group of realtor routes
 		realtorRoutes := public.Group("/realtors")
@@ -29,12 +28,19 @@ func SetupRouter(session_store redis.Store) *gin.Engine {
 	}
 
 	private := r.Group("/api/v1")
+	private.Use(AuthMiddleware())
 	{
+		// Group of user routes
+		userRoutes := private.Group("/users")
+		{
+			userRoutes.GET("/me", api.Dashboard)
+		}
 		// Group of realtor routes
 		realtorRoutes := private.Group("/realtors")
 		{
 			realtorRoutes.POST("/", api.CreateRealtor)
 		}
+
 	}
 
 	return r

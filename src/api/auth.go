@@ -46,12 +46,5 @@ func SignIn(c *gin.Context) {
 }
 
 func Dashboard(c *gin.Context) {
-	session := sessions.Default(c)
-	email := session.Get("email")
-	if email == nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized", "message": "Please sign in"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"status": "OK", "data": "Welcome to the dashboard!", "user": email})
+	c.JSON(http.StatusOK, gin.H{"status": "OK", "data": "Welcome to the dashboard!", "user": "you"})
 }
