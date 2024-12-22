@@ -40,7 +40,11 @@ func SetupRouter(session_store redis.Store) *gin.Engine {
 		{
 			realtorRoutes.POST("/", api.CreateRealtor)
 		}
-
+		// Group of listing routes
+		listingRoutes := private.Group("/listings")
+		{
+			listingRoutes.POST("/", api.CreateListing)
+		}
 	}
 
 	return r
