@@ -40,7 +40,7 @@ func ConnectDatabase() {
 	}
 
 	// migrate models
-	database.AutoMigrate(&models.Realtor{}, &models.User{})
+	database.AutoMigrate(&models.Realtor{}, &models.User{}, &models.Listing{})
 	fmt.Println("Database connected!")
 	DB = database // Assign the database connection to the global variable
 }

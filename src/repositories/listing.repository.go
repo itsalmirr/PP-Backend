@@ -8,32 +8,53 @@ import (
 	"github.com/google/uuid"
 )
 
+// CreateListingInput represents the data structure for creating a new real estate listing.
+// It contains all necessary fields to create a property listing in the system.
 type CreateListingInput struct {
-	Title          string  `json:"title"`
-	Address        string  `json:"address"`
-	City           string  `json:"city"`
-	State          string  `json:"state"`
-	ZipCode        string  `json:"zip_code"`
-	Description    string  `json:"description"`
-	Price          string  `json:"price"`
-	Bedroom        int     `json:"bedroom"`
-	Bathroom       float32 `json:"bathroom"`
-	Garage         int     `json:"garage"`
-	Sqft           int64   `json:"sqft"`
-	TypeOfProperty string  `json:"type_of_property"`
-	LotSize        int64   `json:"lot_size"`
-	Pool           bool    `json:"pool"`
-	YearBuilt      string  `json:"year_built"`
+	// Title is the display name of the listing
+	Title string `json:"title"`
+	// Address is the street address of the property
+	Address string `json:"address"`
+	// City where the property is located
+	City string `json:"city"`
+	// State where the property is located
+	State string `json:"state"`
+	// ZipCode of the property location
+	ZipCode string `json:"zip_code"`
+	// Description provides detailed information about the property
+	Description string `json:"description"`
+	// Price of the property (stored as string to handle various currency formats)
+	Price string `json:"price"`
+	// Bedroom indicates the number of bedrooms
+	Bedroom int `json:"bedroom"`
+	// Bathroom indicates the number of bathrooms (supports half baths with float)
+	Bathroom float32 `json:"bathroom"`
+	// Garage indicates the number of garage spaces
+	Garage int `json:"garage"`
+	// Sqft represents the total square footage of the property
+	Sqft int64 `json:"sqft"`
+	// TypeOfProperty indicates the category (e.g., single-family, condo, etc.)
+	TypeOfProperty string `json:"type_of_property"`
+	// LotSize represents the total land area in square feet
+	LotSize int64 `json:"lot_size"`
+	// Pool indicates if the property has a pool
+	Pool bool `json:"pool"`
+	// YearBuilt indicates when the property was constructed
+	YearBuilt string `json:"year_built"`
 
+	// PhotoMain is the primary display image URL
 	PhotoMain string `json:"photo_main"`
-	Photo1    string `json:"photo_1"`
-	Photo2    string `json:"photo_2"`
-	Photo3    string `json:"photo_3"`
-	Photo4    string `json:"photo_4"`
-	Photo5    string `json:"photo_5"`
+	// Photo1 through Photo5 are additional property image URLs
+	Photo1 string `json:"photo_1"`
+	Photo2 string `json:"photo_2"`
+	Photo3 string `json:"photo_3"`
+	Photo4 string `json:"photo_4"`
+	Photo5 string `json:"photo_5"`
 
-	IsPublished bool      `json:"is_published"`
-	RealtorID   uuid.UUID `json:"realtor_id"`
+	// IsPublished determines if the listing is visible in search results
+	IsPublished bool `json:"is_published"`
+	// RealtorID is the unique identifier of the realtor managing this listing
+	RealtorID uuid.UUID `json:"realtor_id"`
 }
 
 // CreateListingRepository creates a new listing record in the database.
