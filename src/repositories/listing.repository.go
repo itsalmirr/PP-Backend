@@ -36,6 +36,17 @@ type CreateListingInput struct {
 	RealtorID   uuid.UUID `json:"realtor_id"`
 }
 
+// CreateListingRepository creates a new listing record in the database.
+// It first checks if a listing with the given title or address already exists.
+// If such a listing exists, it returns an error.
+// If not, it creates a new listing record with the provided data.
+// The operation is performed within a transaction to ensure atomicity.
+//
+// Parameters:
+//   - data: CreateListingInput containing the details of the listing to be created.
+//
+// Returns:
+//   - error: An error if the listing already exists or if the creation fails, otherwise nil.
 func CreateListingRepository(data CreateListingInput) error {
 	var existingListing models.Listing
 	if err := config.DB.Where("title = ? OR address = ?", data.Title, data.Address).First(&existingListing).Error; err == nil {
