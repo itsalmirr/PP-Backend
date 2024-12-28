@@ -27,7 +27,7 @@ func CreateListing(c *gin.Context) {
 
 	err := repositories.CreateListingRepository(input)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create listing", "message": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create listing, please check your input", "message": err.Error()})
 		return
 	}
 
