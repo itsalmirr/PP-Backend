@@ -54,7 +54,7 @@ func SessionStorage() redis.Store {
 	store, _ := redis.NewStore(10, "tcp", os.Getenv("REDIS_URL"), "", []byte(os.Getenv("SESSION_SECRET")))
 
 	store.Options(sessions.Options{
-		Path:     "/api/v1/users/me",
+		Path:     "/api/v1",
 		MaxAge:   3 * 24 * 60 * 60,
 		HttpOnly: true,
 		Secure:   true,
