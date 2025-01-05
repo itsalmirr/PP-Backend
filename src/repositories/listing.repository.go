@@ -110,3 +110,11 @@ func CreateListingRepository(data CreateListingInput) error {
 	tx.Commit()
 	return nil
 }
+
+func GetListingsRepository() ([]models.Listing, error) {
+	var listings []models.Listing
+	if err := config.DB.Find(&listings).Error; err != nil {
+		return nil, err
+	}
+	return listings, nil
+}

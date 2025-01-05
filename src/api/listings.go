@@ -33,3 +33,13 @@ func CreateListing(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{"status": "OK", "data": "Listing created!"})
 }
+
+func GetListings(c *gin.Context) {
+	listings, err := repositories.GetListingsRepository()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get listings", "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "OK", "data": listings})
+}
