@@ -68,7 +68,7 @@ type CreateListingInput struct {
 //
 // Returns:
 //   - error: An error if the listing already exists or if the creation fails, otherwise nil.
-func CreateListingRepository(data CreateListingInput) error {
+func CreateListingRepo(data CreateListingInput) error {
 	var existingListing models.Listing
 	if err := config.DB.Where("title = ? OR address = ?", data.Title, data.Address).First(&existingListing).Error; err == nil {
 		return errors.New("listing with the given title or address already exists")
@@ -111,10 +111,21 @@ func CreateListingRepository(data CreateListingInput) error {
 	return nil
 }
 
-func GetListingsRepository() ([]models.Listing, error) {
+func GetListingsRepo(page, limit int) ([]models.Listing, int64, error) {
 	var listings []models.Listing
-	if err := config.DB.Find(&listings).Error; err != nil {
-		return nil, err
+	var total int64
+
+	offset := (page - 1) * limit
+
+	if err := config.DB.Model(&models.Listing{}).Count(&total).Error; err != nil {
+		return nil, 0, err
 	}
-	return listings, nil
+
+	result := config.DB.Model(&models.Listing{}).Offset(offset).Limit(limit).Find(&listings)
+
+	if result.Error != nil {
+		return nil, 0, result.Error
+	}
+
+	return listings, total, nil
 }

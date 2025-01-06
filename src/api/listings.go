@@ -1,7 +1,9 @@
 package api
 
 import (
+	"math"
 	"net/http"
+	"strconv"
 
 	"backend.com/go-backend/src/repositories"
 	"github.com/gin-gonic/gin"
@@ -25,7 +27,7 @@ func CreateListing(c *gin.Context) {
 		return
 	}
 
-	err := repositories.CreateListingRepository(input)
+	err := repositories.CreateListingRepo(input)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create listing, please check your input", "message": err.Error()})
 		return
@@ -35,11 +37,36 @@ func CreateListing(c *gin.Context) {
 }
 
 func GetListings(c *gin.Context) {
-	listings, err := repositories.GetListingsRepository()
+	page := 1
+	limit := 10
+
+	if pageQuery := c.Query("page"); pageQuery != "" {
+		if pageNum, err := strconv.Atoi(pageQuery); err == nil && pageNum > 0 {
+			page = pageNum
+		}
+	}
+
+	if limitQuery := c.Query("limit"); limitQuery != "" {
+		if limitNum, err := strconv.Atoi(limitQuery); err == nil && limitNum > 0 {
+			limit = limitNum
+		}
+	}
+
+	listings, total, err := repositories.GetListingsRepo(page, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get listings", "message": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": "OK", "data": listings})
+	totalPages := int(math.Ceil(float64(total) / float64(limit)))
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":       "OK",
+		"data":         listings,
+		"total":        total,
+		"current_page": page,
+		"total_page":   totalPages,
+		"per_page":     limit,
+	})
+
 }
