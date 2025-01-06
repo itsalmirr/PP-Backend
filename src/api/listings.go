@@ -36,6 +36,26 @@ func CreateListing(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"status": "OK", "data": "Listing created!"})
 }
 
+// GetListings handles the retrieval of paginated property listings.
+// @Summary Get paginated listings
+// @Description Retrieves a list of property listings with pagination support
+// @Tags listings
+// @Accept json
+// @Produce json
+// @Param page query int false "Page number (default: 1, min: 1)"
+// @Param limit query int false "Number of items per page (default: 10, min: 1)"
+//
+//	@Success 200 {object} gin.H{
+//	    "status": string,
+//	    "data": []repositories.Listing,
+//	    "total": int64,
+//	    "current_page": int,
+//	    "total_page": int,
+//	    "per_page": int
+//	}
+//
+// @Failure 500 {object} gin.H{"error": string, "message": string}
+// @Router /listings [get]
 func GetListings(c *gin.Context) {
 	page := 1
 	limit := 10
