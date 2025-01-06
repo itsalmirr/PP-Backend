@@ -25,6 +25,11 @@ func SetupRouter(session_store redis.Store) *gin.Engine {
 		{
 			realtorRoutes.GET("/:email", api.GetRealtor)
 		}
+		// Group of listings routes
+		listingRoutes := public.Group("/listings")
+		{
+			listingRoutes.GET("/", api.GetListings)
+		}
 	}
 
 	private := r.Group("/api/v1")
