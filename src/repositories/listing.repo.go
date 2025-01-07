@@ -131,7 +131,7 @@ func CreateListingRepo(data CreateListingInput) error {
 //	listings, total, err := GetListingsRepo(1, 10) // Get first page with 10 items
 //
 // Note: The function uses zero-based offset pagination internally but accepts
-// one-based page numbers for better usability.
+// one-based page numbers for better usability..
 func GetListingsRepo(page, limit int) ([]models.Listing, int64, error) {
 	var listings []models.Listing
 	var total int64
