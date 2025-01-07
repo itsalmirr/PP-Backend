@@ -111,16 +111,41 @@ func CreateListingRepo(data CreateListingInput) error {
 	return nil
 }
 
+// GetListingsRepo retrieves a paginated list of property listings from the database.
+//
+// The function performs two database operations:
+// 1. Gets the total count of all listings in the database
+// 2. Retrieves a specific page of listings based on the provided parameters
+//
+// Parameters:
+//   - page: The page number to retrieve (1-based indexing)
+//   - limit: The maximum number of listings to return per page
+//
+// Returns:
+//   - []models.Listing: A slice of Listing models containing the paginated results
+//   - int64: The total number of listings in the database (before pagination)
+//   - error: An error if the database operations fail, nil otherwise
+//
+// Example usage:
+//
+//	listings, total, err := GetListingsRepo(1, 10) // Get first page with 10 items
+//
+// Note: The function uses zero-based offset pagination internally but accepts
+// one-based page numbers for better usability.
 func GetListingsRepo(page, limit int) ([]models.Listing, int64, error) {
 	var listings []models.Listing
 	var total int64
 
+	// Calculate the offset based on the page number and limit
+	// For example: page 1 with limit 10 = offset 0, page 2 = offset 10
 	offset := (page - 1) * limit
 
+	// Get the total count of listings first
 	if err := config.DB.Model(&models.Listing{}).Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
+	// Retrieve the paginated listings using offset and limit
 	result := config.DB.Model(&models.Listing{}).Offset(offset).Limit(limit).Find(&listings)
 
 	if result.Error != nil {
