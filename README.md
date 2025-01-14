@@ -60,12 +60,14 @@ Required fields in request body:
 
 ## 🏗️ Project Structure
 
+```
 src/
 ├── api/
-│ └── listings.go # API handlers
+│   └── listings.go # API handlers
 ├── config/
-│ └── database.go # Database configuration
+│   └── database.go # Database configuration
 ├── models/
-│ └── listing.go # Data models
+│   └── listing.go # Data models
 └── repositories/
-└── listing.repo.go # Database operations
+    └── listing.repo.go # Database operations
+```
