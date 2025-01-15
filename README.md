@@ -58,6 +58,40 @@ Required fields in request body:
 - `price` - Property price
 - ... (other fields as defined in CreateListingInput)
 
+## 🔐 Realtor Authentication
+
+### Register
+
+```http
+POST /realtors/register
+```
+
+Required fields in request body:
+
+- `name` - Realtor's name
+- `email` - Realtor's email
+- `password` - Realtor's password
+
+### Login
+
+```http
+POST /realtors/login
+```
+
+Required fields in request body:
+
+- `email` - Realtor's email
+- `password` - Realtor's password
+
+Response:
+
+```json
+{
+  "status": "OK",
+  "token": "JWT_TOKEN"
+}
+```
+
 ## 🏗️ Project Structure
 
 ```
@@ -66,6 +100,8 @@ src/
 │   └── listings.go # API handlers
 ├── config/
 │   └── database.go # Database configuration
+├── middleware/
+│   └── auth.go # Authentication middleware
 ├── models/
 │   └── listing.go # Data models
 └── repositories/
