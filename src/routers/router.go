@@ -9,7 +9,7 @@ import (
 
 func SetupRouter(session_store redis.Store) *gin.Engine {
 	r := gin.Default()
-	r.Use(sessions.Sessions("session0x", session_store))
+	r.Use(sessions.Sessions("auth-session", session_store))
 	// Public routes
 	public := r.Group("/api/v1")
 	{
