@@ -89,5 +89,4 @@ func GetListings(c *gin.Context) {
 		"total_page":   totalPages,
 		"per_page":     limit,
 	})
-
 }
