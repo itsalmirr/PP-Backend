@@ -26,7 +26,6 @@ func CreateListing(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input", "message": "Please provide required fields"})
 		return
 	}
-
 	// Create listing
 	err := repositories.CreateListingRepo(input)
 	if err != nil {
