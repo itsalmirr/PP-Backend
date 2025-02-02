@@ -4,6 +4,7 @@ import (
 	"backend.com/go-backend/src/cmd"
 )
 
+// Main function
 func main() {
 	// Set up the server
 	server := cmd.Server()
