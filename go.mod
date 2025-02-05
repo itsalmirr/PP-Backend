@@ -12,7 +12,11 @@ require (
 	gorm.io/gorm v1.25.12
 )
 
-require github.com/go-jose/go-jose/v4 v4.0.2 // indirect
+require (
+	cloud.google.com/go/compute/metadata v0.3.0 // indirect
+	github.com/go-jose/go-jose/v4 v4.0.2 // indirect
+	github.com/markbates/goth v1.80.0 // indirect
+)
 
 require (
 	github.com/boj/redistore v0.0.0-20180917114910-cd5dcc76aeff // indirect
