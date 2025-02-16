@@ -30,7 +30,7 @@ type CreateListingInput struct {
 	// Bathroom indicates the number of bathrooms (supports half baths with float)
 	Bathroom float32 `json:"bathroom"`
 	// Garage indicates the number of garage spaces
-	Garage int `json:"garage"`
+	Garage int `json:"garage,omitzero"`
 	// Sqft represents the total square footage of the property
 	Sqft int64 `json:"sqft"`
 	// TypeOfProperty indicates the category (e.g., single-family, condo, etc.)
@@ -45,11 +45,11 @@ type CreateListingInput struct {
 	// PhotoMain is the primary display image URL
 	PhotoMain string `json:"photo_main"`
 	// Photo1 through Photo5 are additional property image URLs
-	Photo1 string `json:"photo_1"`
-	Photo2 string `json:"photo_2"`
-	Photo3 string `json:"photo_3"`
-	Photo4 string `json:"photo_4"`
-	Photo5 string `json:"photo_5"`
+	Photo1 string `json:"photo_1,omitempty"`
+	Photo2 string `json:"photo_2,omitempty"`
+	Photo3 string `json:"photo_3,omitempty"`
+	Photo4 string `json:"photo_4,omitempty"`
+	Photo5 string `json:"photo_5,omitempty"`
 
 	// IsPublished determines if the listing is visible in search results
 	IsPublished bool `json:"is_published"`
@@ -132,8 +132,8 @@ func CreateListingRepo(data CreateListingInput) error {
 //
 // Note: The function uses zero-based offset pagination internally but accepts
 // one-based page numbers for better usability.
-func GetListingsRepo(page, limit int) ([]models.Listing, int64, error) {
-	var listings []models.Listing
+func GetListingsRepo(page, limit int) ([]CreateListingInput, int64, error) {
+	var listings []CreateListingInput
 	var total int64
 
 	// Calculate the offset based on the page number and limit
