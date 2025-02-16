@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"backend.com/go-backend/src/models"
 	"backend.com/go-backend/src/repositories"
 	"github.com/gin-gonic/gin"
 )
@@ -21,7 +22,7 @@ import (
 // @Failure 500 {object} gin.H{"error": "Failed to create listing", "message": "Error message"}
 // @Router /listings [post]
 func CreateListing(c *gin.Context) {
-	var input repositories.CreateListingInput
+	var input models.Listing
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input", "message": "Please provide required fields"})
 		return

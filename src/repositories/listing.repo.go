@@ -5,57 +5,7 @@ import (
 
 	"backend.com/go-backend/src/config"
 	"backend.com/go-backend/src/models"
-	"github.com/google/uuid"
 )
-
-// CreateListingInput represents the data structure for creating a new real estate listing.
-// It contains all necessary fields to create a property listing in the system.
-type CreateListingInput struct {
-	// Title is the display name of the listing
-	Title string `json:"title"`
-	// Address is the street address of the property
-	Address string `json:"address"`
-	// City where the property is located
-	City string `json:"city"`
-	// State where the property is located
-	State string `json:"state"`
-	// ZipCode of the property location
-	ZipCode string `json:"zip_code"`
-	// Description provides detailed information about the property
-	Description string `json:"description"`
-	// Price of the property (stored as string to handle various currency formats)
-	Price string `json:"price"`
-	// Bedroom indicates the number of bedrooms
-	Bedroom int `json:"bedroom"`
-	// Bathroom indicates the number of bathrooms (supports half baths with float)
-	Bathroom float32 `json:"bathroom"`
-	// Garage indicates the number of garage spaces
-	Garage int `json:"garage,omitzero"`
-	// Sqft represents the total square footage of the property
-	Sqft int64 `json:"sqft"`
-	// TypeOfProperty indicates the category (e.g., single-family, condo, etc.)
-	TypeOfProperty string `json:"type_of_property"`
-	// LotSize represents the total land area in square feet
-	LotSize int64 `json:"lot_size"`
-	// Pool indicates if the property has a pool
-	Pool bool `json:"pool"`
-	// YearBuilt indicates when the property was constructed
-	YearBuilt string `json:"year_built"`
-
-	// PhotoMain is the primary display image URL
-	PhotoMain string `json:"photo_main"`
-	// Photo1 through Photo5 are additional property image URLs
-	Photo1 string `json:"photo_1,omitempty"`
-	Photo2 string `json:"photo_2,omitempty"`
-	Photo3 string `json:"photo_3,omitempty"`
-	Photo4 string `json:"photo_4,omitempty"`
-	Photo5 string `json:"photo_5,omitempty"`
-
-	// IsPublished determines if the listing is visible in search results
-	IsPublished bool `json:"is_published"`
-	// RealtorID is the unique identifier of the realtor managing this listing
-	RealtorID uuid.UUID `json:"realtor_id"`
-}
 
 // CreateListingRepository creates a new listing record in the database.
 // It first checks if a listing with the given title or address already exists.
@@ -68,7 +18,7 @@ type CreateListingInput struct {
 //
 // Returns:
 //   - error: An error if the listing already exists or if the creation fails, otherwise nil.
-func CreateListingRepo(data CreateListingInput) error {
+func CreateListingRepo(data models.Listing) error {
 	var existingListing models.Listing
 	if err := config.DB.Where("title = ? OR address = ?", data.Title, data.Address).First(&existingListing).Error; err == nil {
 		return errors.New("listing with the given title or address already exists")
@@ -132,8 +82,8 @@ func CreateListingRepo(data CreateListingInput) error {
 //
 // Note: The function uses zero-based offset pagination internally but accepts
 // one-based page numbers for better usability.
-func GetListingsRepo(page, limit int) ([]CreateListingInput, int64, error) {
-	var listings []CreateListingInput
+func GetListingsRepo(page, limit int) ([]models.Listing, int64, error) {
+	var listings []models.Listing
 	var total int64
 
 	// Calculate the offset based on the page number and limit
