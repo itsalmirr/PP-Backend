@@ -21,10 +21,10 @@ type Listing struct {
 	Sqft           int64     `gorm:"type:int" json:"sqft"`
 	TypeOfProperty string    `gorm:"type:varchar(255) unique" json:"type_of_property"`
 	LotSize        int64     `gorm:"type:int" json:"lot_size,omitzero"`
-	Pool           bool      `gorm:"type:bool" json:"pool"`
+	Pool           bool      `gorm:"type:bool" json:"pool,omitzero"`
 	YearBuilt      string    `gorm:"type:varchar(255)" json:"year_built"`
 	// Media fields with cloudinary
-	PhotoMain string `gorm:"type:text" json:"photo_main"`
+	PhotoMain string `gorm:"type:text" json:"photo_main,omitempty"`
 	Photo1    string `gorm:"type:text" json:"photo_1,omitempty"`
 	Photo2    string `gorm:"type:text" json:"photo_2,omitempty"`
 	Photo3    string `gorm:"type:text" json:"photo_3,omitempty"`
@@ -32,7 +32,7 @@ type Listing struct {
 	Photo5    string `gorm:"type:text" json:"photo_5,omitempty"`
 
 	IsPublished bool      `gorm:"type:bool" json:"is_published"`
-	PublishDate time.Time `gorm:"type:date" json:"publish_date"`
+	PublishDate time.Time `gorm:"autoCreateTime" json:"publish_date"`
 	// ForeignKey to Realtor model
 	RealtorID uuid.UUID `gorm:"type:uuid;not null" json:"realtor_id"`
 	Realtor   Realtor   `gorm:"foreignKey:RealtorID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"realtor"`
