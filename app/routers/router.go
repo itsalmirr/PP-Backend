@@ -1,28 +1,21 @@
 package routers
 
 import (
-	"os"
-
 	"backend.com/go-backend/app/api"
+	"backend.com/go-backend/app/config"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
-	"github.com/markbates/goth"
-	"github.com/markbates/goth/providers/google"
 )
 
 func SetupRouter(session_store redis.Store) *gin.Engine {
 	r := gin.Default()
-	goth.UseProviders(
-		google.New(
-			os.Getenv("GOOGLE_CLIENT_ID"),
-			os.Getenv("GOOGLE_CLIENT_SECRET"),
-			"http://localhost:8080/auth/google/callback",
-		),
-	)
-
 	r.Use(sessions.Sessions("auth-session", session_store))
+
+	config.InitOAuth()
 	// Public routes
+	r.GET("/auth/google", api.GoogleAuthInit)
+	r.GET("/auth/google/callback", api.GoogleAuthCallback)
 	public := r.Group("/api/v1")
 	{
 		// Group of user routes

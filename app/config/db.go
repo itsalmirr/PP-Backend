@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"time"
 
@@ -92,14 +93,31 @@ func SessionStorage() redis.Store {
 	if err != nil {
 		panic("Failed to load .env file!")
 	}
-	store, _ := redis.NewStore(10, "tcp", os.Getenv("REDIS_URL"), "", []byte(os.Getenv("SESSION_SECRET")))
+	// Validate secret
+	secret := os.Getenv("SESSION_SECRET")
+	if len(secret) != 32 && len(secret) != 64 { // Check byte length
+		panic("SESSION_SECRET must be 32 or 64 bytes (64/128 hex chars)")
+	}
+
+	store, err := redis.NewStore(
+		10,
+		"tcp",
+		os.Getenv("REDIS_URL"),
+		"",
+		[]byte(secret), // Pass to both key arguments
+		[]byte(secret),
+	)
+
+	if err != nil {
+		panic("Failed to create Redis store: " + err.Error())
+	}
 
 	store.Options(sessions.Options{
-		Path:     "/api/v1",
+		Path:     "/",
 		MaxAge:   3 * 24 * 60 * 60,
 		HttpOnly: true,
-		Secure:   true,
-		SameSite: 3,
+		Secure:   false,
+		SameSite: http.SameSiteLaxMode,
 	})
 	return store
 }

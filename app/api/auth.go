@@ -3,10 +3,13 @@ package api
 import (
 	"net/http"
 
+	"backend.com/go-backend/app/config"
+	"backend.com/go-backend/app/models"
 	"backend.com/go-backend/app/repositories"
 	"github.com/alexedwards/argon2id"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/markbates/goth/gothic"
 )
 
 // SignIn handles user sign-in requests.
@@ -48,4 +51,59 @@ func SignIn(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"status": "OK", "data": "User signed in!"})
+}
+
+func GoogleAuthInit(c *gin.Context) {
+	provider := "google"
+	q := c.Request.URL.Query()
+	q.Add("provider", provider)
+	c.Request.URL.RawQuery = q.Encode()
+
+	session := sessions.Default(c)
+	session.Set("oauth_redirect", c.Query("redirect_url"))
+	session.Save()
+
+	gothic.BeginAuthHandler(c.Writer, c.Request)
+}
+
+func GoogleAuthCallback(c *gin.Context) {
+	user, err := gothic.CompleteUserAuth(c.Writer, c.Request)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "OAuth failed", "message": err.Error()})
+		return
+	}
+
+	var existingUser models.User
+	result := config.DB.Where("provider = ? AND provider_id = ?", "google", user.UserID).First(&existingUser)
+
+	if result.Error != nil {
+		newUser := models.User{
+			Email:      user.Email,
+			FullName:   user.Name,
+			Provider:   "google",
+			ProviderID: user.UserID,
+			Password:   "oauth-user",
+		}
+		if err := config.DB.Create(&newUser).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user", "message": err.Error()})
+			return
+		}
+		existingUser = newUser
+	}
+
+	session := sessions.Default(c)
+	session.Set("email", existingUser.Email)
+	if err := session.Save(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session", "message": err.Error()})
+		return
+	}
+
+	redirectURL := session.Get("oauth_redirect")
+	if redirectURL != nil {
+		c.Redirect(http.StatusTemporaryRedirect, redirectURL.(string))
+		return
+	} else {
+		c.Redirect(http.StatusFound, "/dashboard")
+	}
+
 }

@@ -69,14 +69,20 @@ func CreateUserRepository(data CreateUserInput) error {
 // Returns:
 //   - models.User: The user object containing the user's details.
 //   - error: An error object if there is an issue during the retrieval process.
-func GetUserRepository(email string) (models.User, error) {
+func GetUserRepository(identifier string) (models.User, error) {
 	var user models.User
 
-	if err := config.DB.Session(&gorm.Session{PrepareStmt: false}).Select("id", "avatar", "email", "username", "password", "full_name", "start_date", "is_staff", "is_active").Where("email = ?", email).First(&user).Error; err != nil {
+	if err := config.DB.Session(&gorm.Session{PrepareStmt: false}).Select("id", "avatar", "email", "username", "password", "full_name", "start_date", "is_staff", "is_active", "provider", "provider_id").Where("email = ? OR provider_id = ?", identifier).First(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return user, errors.New("user not found")
 		}
 		return user, errors.New("failed to get user")
 	}
 	return user, nil
+}
+
+func CheckEmailExists(email string) bool {
+	var count int64
+	config.DB.Model(&models.User{}).Where("email = ?", email).Count(&count)
+	return count > 0
 }
