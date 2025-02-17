@@ -1,14 +1,14 @@
 package api
 
 import (
-	"math"
 	"net/http"
-	"strconv"
 
 	"backend.com/go-backend/src/models"
 	"backend.com/go-backend/src/repositories"
 	"github.com/gin-gonic/gin"
 )
+
+type ListingQueryParams = repositories.ListingQueryParams
 
 // CreateListing handles the creation of a new listing.
 // @Summary Create a new listing
@@ -58,35 +58,52 @@ func CreateListing(c *gin.Context) {
 // @Failure 500 {object} gin.H{"error": string, "message": string}
 // @Router /listings [get]
 func GetListings(c *gin.Context) {
-	page := 1
-	limit := 10
+	var params ListingQueryParams
 
-	if pageQuery := c.Query("page"); pageQuery != "" {
-		if pageNum, err := strconv.Atoi(pageQuery); err == nil && pageNum > 0 {
-			page = pageNum
-		}
-	}
-
-	if limitQuery := c.Query("limit"); limitQuery != "" {
-		if limitNum, err := strconv.Atoi(limitQuery); err == nil && limitNum > 0 {
-			limit = limitNum
-		}
-	}
-
-	listings, total, err := repositories.GetListingsRepo(page, limit)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get listings", "message": err.Error()})
+	// Bind query parameters to ListingQueryParams struct
+	if err := c.ShouldBindQuery(&params); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Invalid query parameters",
+			"details": err.Error(),
+		})
 		return
 	}
 
-	totalPages := int(math.Ceil(float64(total) / float64(limit)))
+	// Default values if not provided
+	if params.PageSize <= 0 || params.PageSize > 100 {
+		params.PageSize = 10 // Default page size
+	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"status":       "OK",
-		"data":         listings,
-		"total":        total,
-		"current_page": page,
-		"total_page":   totalPages,
-		"per_page":     limit,
-	})
+	// Default sort field and order
+	if params.SortBy == "" {
+		params.SortBy = "created_at" // Default sort field
+	}
+
+	// Default sort order
+	if params.SortOrder == "" {
+		params.SortOrder = "desc" // Default sort order
+	}
+
+	// Get listings from repo
+	listings, meta, err := repositories.GetListingsRepo(params)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to retrive listings",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	response := gin.H{
+		"status": "OK",
+		"data":   listings,
+		"pagination": gin.H{
+			"total":       meta.Total,
+			"has_next":    meta.HasNext,
+			"next_cursor": meta.Cursor,
+			"page_size":   params.PageSize,
+		},
+	}
+
+	c.JSON(http.StatusOK, response)
 }

@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"backend.com/go-backend/src/models"
 	"github.com/gin-contrib/sessions"
@@ -10,6 +11,7 @@ import (
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var DB *gorm.DB
@@ -29,19 +31,58 @@ func ConnectDatabase() {
 		os.Getenv("DB_NAME"),
 		os.Getenv("DB_PORT"),
 	)
+
+	// Gorm dafabase config
+	config := &gorm.Config{
+		PrepareStmt:            true,
+		Logger:                 logger.Default.LogMode(logger.Info),
+		SkipDefaultTransaction: true,
+		NowFunc: func() time.Time {
+			return time.Now().UTC() // for consistent timezone
+		},
+	}
+
 	database, err := gorm.Open(postgres.New(postgres.Config{
 		DriverName: "pgx",
 		DSN:        dsn,
-	}), &gorm.Config{
-		PrepareStmt: false,
-	})
+	}), config)
 	if err != nil {
 		panic("Failed to connect to database!")
 	}
 
-	// migrate models
-	database.AutoMigrate(&models.Realtor{}, &models.User{}, &models.Listing{})
-	fmt.Println("Database connected!")
+	sqlDB, err := database.DB()
+	if err != nil {
+		panic(fmt.Sprintf("Failed to get DB instance: %v", err))
+	}
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(100)
+	sqlDB.SetConnMaxLifetime(time.Hour)
+
+	// Migrations with transactions
+	err = database.Transaction(func(tx *gorm.DB) error {
+		models := []interface{}{
+			&models.User{},
+			&models.Listing{},
+			&models.Realtor{},
+		}
+
+		fmt.Println("Migrating models...")
+		for _, model := range models {
+			fmt.Printf("Migrating model: %T\n", model)
+		}
+		return tx.AutoMigrate(models...)
+	})
+
+	if err != nil {
+		panic(fmt.Sprintf("Failed to migrate: %v", err))
+	}
+
+	// Verify Migration
+	if !database.Migrator().HasTable(&models.Listing{}) {
+		panic("Listing table does not exist!")
+	}
+
+	fmt.Println("Database connected and migrated successfully!")
 	DB = database // Assign the database connection to the global variable
 }
 

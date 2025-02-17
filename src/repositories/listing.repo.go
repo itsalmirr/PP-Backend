@@ -2,10 +2,32 @@ package repositories
 
 import (
 	"errors"
+	"fmt"
+	"time"
 
 	"backend.com/go-backend/src/config"
 	"backend.com/go-backend/src/models"
 )
+
+// Listing alias for brevity
+type Listing = models.Listing
+
+// ListingQueryParams holds parameters for querying listings.
+type ListingQueryParams struct {
+	PageSize  int     `form:"page_size" binding:"omitempty,min=1,max=100"`
+	Cursor    string  `form:"cursor"`
+	SortBy    string  `form:"sort_by" binding:"omitempty,oneof=created_at price sqft"`
+	SortOrder string  `form:"sort_order" binding:"omitempty,oneof=asc desc"`
+	City      string  `form:"city"`
+	MinPrice  float64 `form:"min_price" binding:"omitempty,min=0"`
+}
+
+// PaginationMeta holds metadata for paginated results.
+type PaginationMeta struct {
+	Total   int64
+	HasNext bool
+	Cursor  string
+}
 
 // CreateListingRepository creates a new listing record in the database.
 // It first checks if a listing with the given title or address already exists.
@@ -18,15 +40,15 @@ import (
 //
 // Returns:
 //   - error: An error if the listing already exists or if the creation fails, otherwise nil.
-func CreateListingRepo(data models.Listing) error {
-	var existingListing models.Listing
+func CreateListingRepo(data Listing) error {
+	var existingListing Listing
 	if err := config.DB.Where("title = ? OR address = ?", data.Title, data.Address).First(&existingListing).Error; err == nil {
 		return errors.New("listing with the given title or address already exists")
 
 	}
 
 	// Create a new listing
-	listing := models.Listing{
+	listing := Listing{
 		Title:          data.Title,
 		Address:        data.Address,
 		City:           data.City,
@@ -56,46 +78,70 @@ func CreateListingRepo(data models.Listing) error {
 	return nil
 }
 
-// GetListingsRepo retrieves a paginated list of property listings from the database.
-//
-// The function performs two database operations:
-// 1. Gets the total count of all listings in the database
-// 2. Retrieves a specific page of listings based on the provided parameters
+// GetListingsRepo retrieves listings from the database using various query parameters.
+// It supports filtering by city and minimum price, sorting by a specified field and order,
+// and implements cursor-based pagination. Additionally, the associated Realtor data for each listing is preloaded.
 //
 // Parameters:
-//   - page: The page number to retrieve (1-based indexing)
-//   - limit: The maximum number of listings to return per page
+//
+//	params - a ListingQueryParams struct that includes:
+//	  - City: filter for listings in a specific city.
+//	  - MinPrice: minimum price filter for listings.
+//	  - SortBy & SortOrder: field and order to sort the result.
+//	  - Cursor: timestamp used for pagination to retrieve listings created before this value.
+//	  - PageSize: the maximum number of listings to retrieve.
 //
 // Returns:
-//   - []models.Listing: A slice of Listing models containing the paginated results
-//   - int64: The total number of listings in the database (before pagination)
-//   - error: An error if the database operations fail, nil otherwise
 //
-// Example usage:
-//
-//	listings, total, err := GetListingsRepo(1, 10) // Get first page with 10 items
-//
-// Note: The function uses zero-based offset pagination internally but accepts
-// one-based page numbers for better usability.
-func GetListingsRepo(page, limit int) ([]models.Listing, int64, error) {
-	var listings []models.Listing
-	var total int64
+//	[]models.Listing      - a slice containing the listings that match the filtering and sorting criteria.
+//	PaginationMeta        - metadata about the pagination including total count, a boolean flag indicating if there's a next page,
+//	                        and the cursor pointing to the last listing's creation time.
+//	error                 - an error value that is non-nil if the operation encounters an issue.
+func GetListingsRepo(params ListingQueryParams) ([]Listing, PaginationMeta, error) {
+	query := config.DB.Model(&Listing{})
 
-	// Calculate the offset based on the page number and limit
-	// For example: page 1 with limit 10 = offset 0, page 2 = offset 10
-	offset := (page - 1) * limit
-
-	// Get the total count of listings first
-	if err := config.DB.Model(&models.Listing{}).Count(&total).Error; err != nil {
-		return nil, 0, err
+	// Filters
+	if params.City != "" {
+		query = query.Where("city = ?", params.City)
+	}
+	if params.MinPrice > 0 {
+		query = query.Where("price >= ?", params.MinPrice)
 	}
 
-	// Retrieve the paginated listings using offset and limit
-	result := config.DB.Model(&models.Listing{}).Offset(offset).Limit(limit).Find(&listings)
+	// Sorting
+	sortBy := fmt.Sprintf("%s %s", params.SortBy, params.SortOrder)
+	query = query.Order(sortBy)
+
+	// Cursor based pagination
+	if params.Cursor != "" {
+		query = query.Where("created_at < ?", params.Cursor)
+	}
+
+	// Eager loading
+	query = query.Preload("Realtor")
+
+	// Execute query
+	var listings []Listing
+	result := query.Limit(params.PageSize).Find(&listings)
 
 	if result.Error != nil {
-		return nil, 0, result.Error
+		return nil, PaginationMeta{}, result.Error
 	}
 
-	return listings, total, nil
+	var cursor string
+	hasNext := false
+
+	if len(listings) > 0 {
+		hasNext = len(listings) == params.PageSize
+		cursor = listings[len(listings)-1].CreatedAt.Format(time.RFC3339)
+	}
+
+	var total int64
+	config.DB.Model(&Listing{}).Count(&total)
+
+	return listings, PaginationMeta{
+		Total:   total,
+		HasNext: hasNext,
+		Cursor:  cursor,
+	}, nil
 }
