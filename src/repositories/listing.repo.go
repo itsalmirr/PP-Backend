@@ -42,13 +42,8 @@ func CreateListingRepo(data models.Listing) error {
 		LotSize:        data.LotSize,
 		Pool:           data.Pool,
 		YearBuilt:      data.YearBuilt,
-		PhotoMain:      data.PhotoMain,
-		Photo1:         data.Photo1,
-		Photo2:         data.Photo2,
-		Photo3:         data.Photo3,
-		Photo4:         data.Photo4,
-		Photo5:         data.Photo5,
-		IsPublished:    data.IsPublished,
+		Media:          data.Media,
+		Status:         data.Status,
 		RealtorID:      data.RealtorID,
 	}
 

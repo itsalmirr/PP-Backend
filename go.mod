@@ -14,8 +14,13 @@ require (
 
 require (
 	cloud.google.com/go/compute/metadata v0.3.0 // indirect
+	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/go-jose/go-jose/v4 v4.0.2 // indirect
+	github.com/go-sql-driver/mysql v1.8.1 // indirect
 	github.com/markbates/goth v1.80.0 // indirect
+	github.com/shopspring/decimal v1.4.0 // indirect
+	gorm.io/datatypes v1.2.5 // indirect
+	gorm.io/driver/mysql v1.5.6 // indirect
 )
 
 require (
