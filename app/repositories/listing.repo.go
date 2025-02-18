@@ -29,6 +29,17 @@ type PaginationMeta struct {
 	Cursor  string
 }
 
+var allowedSortFields = map[string]bool{
+	"price":      true,
+	"city":       true,
+	"created_at": true, // Add other valid fields here
+}
+
+var allowedSortOrders = map[string]bool{
+	"asc":  true,
+	"desc": true,
+}
+
 // CreateListingRepository creates a new listing record in the database.
 // It first checks if a listing with the given title or address already exists.
 // If such a listing exists, it returns an error.
@@ -100,12 +111,14 @@ func CreateListingRepo(data Listing) error {
 func GetListingsRepo(params ListingQueryParams) ([]Listing, PaginationMeta, error) {
 	query := config.DB.Model(&Listing{})
 
-	// Filters
-	if params.City != "" {
-		query = query.Where("city = ?", params.City)
+	// Validate SortBy field
+	if !allowedSortFields[params.SortBy] {
+		params.SortBy = "created_at" // Default to a safe field
 	}
-	if params.MinPrice > 0 {
-		query = query.Where("price >= ?", params.MinPrice)
+
+	// Validate SortOrder value
+	if !allowedSortOrders[params.SortOrder] {
+		params.SortOrder = "asc" // Default to ascending order
 	}
 
 	// Sorting
