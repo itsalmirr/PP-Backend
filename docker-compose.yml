@@ -3,22 +3,8 @@ services:
     build: .
     ports:
       - '8080:8080'
-    env_file: .env
-    environment:
-      - DB_HOST
-      - DB_USER
-      - DB_PASSWORD
-      - DB_NAME
-      - DB_PORT
-      - GOOGLE_CLIENT_ID
-      - GOOGLE_CLIENT_SECRET
-      - GOOGLE_CALLBACK_URL
-      - GITHUB_CLIENT_ID
-      - GITHUB_CLIENT_SECRET
-      - GITHUB_CALLBACK_URL
-      - REDIS_URL
-      - SESSION_KEY
-      - SESSION_SECRET
+    volumes:
+      - ${PWD}/.env:/app/.env
     develop:
       watch:
         - action: sync

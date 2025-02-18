@@ -1,3 +1,40 @@
 # Version control
 .git
 .gitignore
+
+node_modules/
+
+# Dependency caches
+*.log
+*.cache
+*.lock
+
+# Build artifacts
+bin/
+obj/
+*.out
+*.exe
+*.class
+*.o
+
+# Docker-related files
+Dockerfile*
+docker-compose.yml
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Secrets and environment files
+.env
+secrets/
+
+# Test and temporary files
+*.test
+*.tmp
+coverage/
