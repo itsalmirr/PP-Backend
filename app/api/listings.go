@@ -34,7 +34,7 @@ func CreateListing(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"status": "OK", "data": "Listing created!"})
+	c.JSON(http.StatusCreated, gin.H{"status": "OK", "message": "Listing created!"})
 }
 
 // GetListings handles the retrieval of paginated property listings.
