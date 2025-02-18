@@ -1,8 +1,6 @@
 package config
 
 import (
-	"encoding/hex"
-	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -11,7 +9,6 @@ import (
 	"backend.com/go-backend/app/models"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
-	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -20,12 +17,6 @@ import (
 var DB *gorm.DB
 
 func ConnectDatabase() {
-	// Load .env file
-	err := godotenv.Load()
-	if err != nil {
-		panic("Failed to load .env file!")
-	}
-
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		os.Getenv("DB_HOST"),
@@ -90,21 +81,10 @@ func ConnectDatabase() {
 }
 
 func SessionStorage() redis.Store {
-	// Load .env file
-	err := godotenv.Load()
-	if err != nil {
-		panic("Failed to load .env file!")
-	}
 	// Validate secret
-	secretHex := os.Getenv("SESSION_SECRET")
-	if len(secretHex) != 64 { // Check byte length
+	secret := os.Getenv("SESSION_SECRET")
+	if len(secret) != 32 && len(secret) != 64 { // Check byte length
 		panic("SESSION_SECRET must be 32 or 64 bytes (64/128 hex chars)")
-	}
-
-	// Convert hex to 32-byte key
-	key, err := hex.DecodeString(secretHex)
-	if err != nil {
-		panic(errors.New("invalid hex format"))
 	}
 
 	store, err := redis.NewStore(
@@ -112,8 +92,8 @@ func SessionStorage() redis.Store {
 		"tcp",
 		os.Getenv("REDIS_URL"),
 		"",
-		key, // Pass to both key arguments
-		key,
+		[]byte(secret), // Pass to both key arguments
+		[]byte(secret),
 	)
 
 	if err != nil {
