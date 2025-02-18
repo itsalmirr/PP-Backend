@@ -9,7 +9,6 @@ import (
 	"backend.com/go-backend/app/models"
 )
 
-
 // Listing alias for brevity
 type Listing = models.Listing
 
@@ -113,14 +112,15 @@ func GetListingsRepo(params ListingQueryParams) ([]Listing, PaginationMeta, erro
 	query := config.DB.Model(&Listing{})
 
 	// Validate and map SortBy field
-	sortBy, ok := allowedSortFields[params.SortBy]
+	_, ok := allowedSortFields[params.SortBy]
+	sortBy := params.SortBy
 	if !ok {
-		sortBy = "created_at" // Default to a safe field
+		sortBy = "created_at" // Default to created_at field
 	}
 
 	// Validate and map SortOrder value
-	sortOrder, ok := allowedSortOrders[params.SortOrder]
-	if !ok {
+	sortOrder := params.SortOrder
+	if _, ok := allowedSortOrders[sortOrder]; !ok {
 		sortOrder = "asc" // Default to ascending order
 	}
 
