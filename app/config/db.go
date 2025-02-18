@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/hex"
 	"fmt"
 	"net/http"
 	"os"
@@ -82,9 +83,14 @@ func ConnectDatabase() {
 
 func SessionStorage() redis.Store {
 	// Validate secret
-	secret := os.Getenv("SESSION_SECRET")
-	if len(secret) != 32 && len(secret) != 64 { // Check byte length
+	secretHex := os.Getenv("SESSION_SECRET")
+	if len(secretHex) != 32 && len(secretHex) != 64 { // Check byte length
 		panic("SESSION_SECRET must be 32 or 64 bytes (64/128 hex chars)")
+	}
+
+	key, err := hex.DecodeString(secretHex)
+	if err != nil {
+		panic("Failed to decode SESSION_SECRET: " + err.Error())
 	}
 
 	store, err := redis.NewStore(
@@ -92,8 +98,8 @@ func SessionStorage() redis.Store {
 		"tcp",
 		os.Getenv("REDIS_URL"),
 		"",
-		[]byte(secret), // Pass to both key arguments
-		[]byte(secret),
+		key, // Pass to both key arguments
+		key,
 	)
 
 	if err != nil {

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 
 	"backend.com/go-backend/app/config"
@@ -60,14 +61,21 @@ func GoogleAuthInit(c *gin.Context) {
 	c.Request.URL.RawQuery = q.Encode()
 
 	session := sessions.Default(c)
-	session.Set("oauth_redirect", c.Query("redirect_url"))
+	session.Set("oauth_redirect", "/dashboard")
 	session.Save()
 
-	gothic.BeginAuthHandler(c.Writer, c.Request)
+	// gothic.BeginAuthHandler(c.Writer, c.Request)
+	url, err := gothic.GetAuthURL(c.Writer, c.Request)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	fmt.Printf("URL: %s\n", url)
+	c.Redirect(http.StatusFound, url)
 }
 
 func GoogleAuthCallback(c *gin.Context) {
-	user, err := gothic.CompleteUserAuth(c.Writer, c.Request)
+	user, err := gothic.CompleteUserAuth(c.Writer, c.Request.WithContext(c))
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "OAuth failed", "message": err.Error()})
 		return
@@ -100,7 +108,7 @@ func GoogleAuthCallback(c *gin.Context) {
 
 	redirectURL := session.Get("oauth_redirect")
 	if redirectURL != nil {
-		c.Redirect(http.StatusTemporaryRedirect, redirectURL.(string))
+		c.Redirect(http.StatusSeeOther, redirectURL.(string))
 		return
 	} else {
 		c.Redirect(http.StatusFound, "/dashboard")
