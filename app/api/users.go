@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"backend.com/go-backend/app/repositories"
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -36,7 +37,20 @@ func CreateUser(c *gin.Context) {
 }
 
 func Dashboard(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"status": "OK", "data": "Welcome to the dashboard!", "user": "you"})
+	session := sessions.Default(c)
+	email, ok := session.Get("userEmail").(string)
+	if !ok || email == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized", "message": "Please sign in"})
+		return
+	}
+
+	user, err := repositories.GetUserRepository(email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user", "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": user})
 }
 
 // GetUser handles the HTTP request to retrieve a user by email.

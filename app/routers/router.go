@@ -14,8 +14,8 @@ func SetupRouter(session_store redis.Store) *gin.Engine {
 
 	config.InitOAuth()
 	// Public routes
-	r.GET("/auth/google", api.GoogleAuthInit)
-	r.GET("/auth/google/callback", api.GoogleAuthCallback)
+	r.GET("/auth/:provider", api.AuthInit)
+	r.GET("/auth/:provider/callback", api.AuthCallback)
 	public := r.Group("/api/v1")
 	{
 		// Group of user routes

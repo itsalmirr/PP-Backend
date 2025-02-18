@@ -11,6 +11,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/markbates/goth/gothic"
+	"golang.org/x/net/context"
 )
 
 // SignIn handles user sign-in requests.
@@ -45,73 +46,89 @@ func SignIn(c *gin.Context) {
 	}
 
 	session := sessions.Default(c)
-	session.Set("email", user.Email)
+	session.Set("userEmail", user.Email)
 	if err := session.Save(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session", "message": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": "OK", "data": "User signed in!"})
+	c.Redirect(http.StatusSeeOther, "/api/v1/users/me")
 }
 
-func GoogleAuthInit(c *gin.Context) {
-	provider := "google"
+func AuthInit(c *gin.Context) {
+	provider := c.Param("provider")
 	q := c.Request.URL.Query()
 	q.Add("provider", provider)
 	c.Request.URL.RawQuery = q.Encode()
 
 	session := sessions.Default(c)
-	session.Set("oauth_redirect", "/dashboard")
+	session.Set("oauth_redirect", "/api/v1/users/me")
 	session.Save()
 
-	// gothic.BeginAuthHandler(c.Writer, c.Request)
-	url, err := gothic.GetAuthURL(c.Writer, c.Request)
+	authUrl, err := gothic.GetAuthURL(c.Writer, c.Request)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to get auth URL", "message": err.Error()})
 		return
 	}
-	fmt.Printf("URL: %s\n", url)
-	c.Redirect(http.StatusFound, url)
+	fmt.Printf("URL: %s\n", authUrl)
+	c.Redirect(http.StatusTemporaryRedirect, authUrl)
 }
 
-func GoogleAuthCallback(c *gin.Context) {
-	user, err := gothic.CompleteUserAuth(c.Writer, c.Request.WithContext(c))
+// check if user email is verified
+// rawData := user.RawData
+// emailVerified, _ := rawData["email_verified"].(bool)
+// if !emailVerified {
+// 	c.JSON(http.StatusForbidden, gin.H{"error": "OAuth failed", "message": "Email not verified"})
+// 	return
+// }
+
+func AuthCallback(c *gin.Context) {
+	provider := c.Param("provider")
+	req := c.Request.WithContext(context.WithValue(c.Request.Context(), "provider", provider))
+
+	user, err := gothic.CompleteUserAuth(c.Writer, req)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "OAuth failed", "message": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "OAuth failed", "message": fmt.Sprintf("%s authentication failed: %v", provider, err)})
+		return
+	}
+
+	if verified, _ := user.RawData["email_verified"].(bool); !verified && provider == "google" {
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Email verification required", "message": "Please verify your email with " + provider})
 		return
 	}
 
 	var existingUser models.User
 	result := config.DB.Where("provider = ? AND provider_id = ?", "google", user.UserID).First(&existingUser)
-
 	if result.Error != nil {
 		newUser := models.User{
+			Avatar:     user.AvatarURL,
 			Email:      user.Email,
 			FullName:   user.Name,
-			Provider:   "google",
+			Username:   user.Email,
+			Provider:   provider,
 			ProviderID: user.UserID,
-			Password:   "oauth-user",
+			Password:   fmt.Sprintf("oauth-%s-user", provider),
 		}
 		if err := config.DB.Create(&newUser).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user", "message": err.Error()})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user", "message": fmt.Sprintf("Could not create %s user: %v", provider, err)})
 			return
 		}
 		existingUser = newUser
 	}
 
 	session := sessions.Default(c)
-	session.Set("email", existingUser.Email)
+	session.Set("userEmail", existingUser.Email)
+	session.Set("authProvider", provider)
 	if err := session.Save(); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session", "message": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Session error", "message": "Failed to save authentication session"})
 		return
 	}
 
-	redirectURL := session.Get("oauth_redirect")
-	if redirectURL != nil {
+	if redirectURL := session.Get("oauth_redirect"); redirectURL != nil {
+		session.Delete("oauth_redirect")
+		session.Save()
 		c.Redirect(http.StatusSeeOther, redirectURL.(string))
-		return
 	} else {
-		c.Redirect(http.StatusFound, "/dashboard")
+		c.Redirect(http.StatusFound, "/api/v1/users/me")
 	}
-
 }

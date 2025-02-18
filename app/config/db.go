@@ -53,28 +53,14 @@ func ConnectDatabase() {
 	sqlDB.SetMaxOpenConns(100)
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
-	// Migrations with transactions
-	err = database.Transaction(func(tx *gorm.DB) error {
-		models := []interface{}{
-			&models.User{},
-			&models.Listing{},
-			&models.Realtor{},
-		}
-
-		fmt.Println("Migrating models...")
-		for _, model := range models {
-			fmt.Printf("Migrating model: %T\n", model)
-		}
-		return tx.AutoMigrate(models...)
-	})
-
+	// Migrations
+	err = database.AutoMigrate(
+		&models.User{},
+		&models.Listing{},
+		&models.Realtor{},
+	)
 	if err != nil {
 		panic(fmt.Sprintf("Failed to migrate: %v", err))
-	}
-
-	// Verify Migration
-	if !database.Migrator().HasTable(&models.Listing{}) {
-		panic("Listing table does not exist!")
 	}
 
 	fmt.Println("Database connected and migrated successfully!")

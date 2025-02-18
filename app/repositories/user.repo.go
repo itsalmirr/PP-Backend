@@ -72,7 +72,7 @@ func CreateUserRepository(data CreateUserInput) error {
 func GetUserRepository(identifier string) (models.User, error) {
 	var user models.User
 
-	if err := config.DB.Session(&gorm.Session{PrepareStmt: false}).Select("id", "avatar", "email", "username", "password", "full_name", "start_date", "is_staff", "is_active", "provider", "provider_id").Where("email = ? OR provider_id = ?", identifier).First(&user).Error; err != nil {
+	if err := config.DB.Session(&gorm.Session{PrepareStmt: false}).Select("id", "avatar", "email", "username", "full_name", "start_date", "is_staff", "is_active", "provider", "provider_id").Where("email = ? OR provider_id = ?", identifier, identifier).First(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return user, errors.New("user not found")
 		}

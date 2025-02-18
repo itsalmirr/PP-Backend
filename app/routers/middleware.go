@@ -2,6 +2,7 @@ package routers
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -10,18 +11,28 @@ import (
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		session := sessions.Default(c)
-		email := session.Get("email")
+		email := session.Get("userEmail")
 
-		// Enhanced session validation
+		if strings.HasPrefix(c.Request.URL.Path, "/auth/") {
+			provider := strings.TrimPrefix(c.Request.URL.Path, "/auth/")
+			provider = strings.Split(provider, "/")[0]
+
+			q := c.Request.URL.Query()
+			q.Add("provider", provider)
+			c.Request.URL.RawQuery = q.Encode()
+
+			c.Next()
+			return
+		}
+
 		if email == nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"error":   "Unauthorized",
-				"message": "Session expired or invalid",
+				"message": "session expired or not logged in",
 			})
 			return
 		}
 
-		// Add user context for downstream handlers
 		c.Set("userEmail", email)
 		c.Next()
 	}
