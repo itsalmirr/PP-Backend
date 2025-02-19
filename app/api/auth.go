@@ -28,14 +28,14 @@ func SignIn(c *gin.Context) {
 
 	var input SignInInput
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input", "message": "Please provide required fields"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid input", "message": "Please provide required fields"})
 		return
 	}
 
 	// Check if user exists
 	user, err := repositories.GetUserRepository(input.Email)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user", "message": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user", "message": "User not found"})
 		return
 	}
 

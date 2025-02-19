@@ -7,6 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type Realtor = repositories.Realtor
+
 // CreateRealtor handles the creation of a new realtor.
 // @Summary Create a new realtor
 // @Description Create a new realtor with the provided input data
@@ -19,7 +21,7 @@ import (
 // @Failure 500 {object} gin.H{"error": "Failed to create realtor", "message": "Error message"}
 // @Router /realtors [post]
 func CreateRealtor(c *gin.Context) {
-	var input repositories.CreateRealtorInput
+	var input Realtor
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input", "message": "Please provide required fields"})
 		return
