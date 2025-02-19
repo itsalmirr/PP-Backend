@@ -50,6 +50,9 @@ func Dashboard(c *gin.Context) {
 		return
 	}
 
+	// Remove the password hash from the user object
+	user.Password = ""
+
 	c.JSON(http.StatusOK, gin.H{"data": user})
 }
 

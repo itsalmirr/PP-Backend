@@ -14,6 +14,11 @@ import (
 	"golang.org/x/net/context"
 )
 
+type SignInInput struct {
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
 // SignIn handles user sign-in requests.
 // It expects a JSON payload with "email" and "password" fields.
 // If the input is invalid, it returns a 400 status code with an error message.
@@ -21,10 +26,7 @@ import (
 // If there is an internal server error, it returns a 500 status code with an error message.
 // On successful sign-in, it creates a session and returns a 200 status code with a success message.
 func SignIn(c *gin.Context) {
-	type SignInInput struct {
-		Email    string `json:"email" binding:"required"`
-		Password string `json:"password" binding:"required"`
-	}
+	provider := c.Param("provider")
 
 	var input SignInInput
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -47,6 +49,7 @@ func SignIn(c *gin.Context) {
 
 	session := sessions.Default(c)
 	session.Set("userEmail", user.Email)
+	session.Set("authProvider", provider)
 	if err := session.Save(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session", "message": err.Error()})
 		return
