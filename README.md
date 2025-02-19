@@ -72,30 +72,40 @@ Required fields in request body:
 - `email` - Realtor's email
 - `password` - Realtor's password
 
-### Login
+### Login Endpoint
 
-```http
-POST /realtors/login
-```
+**Request Body Parameters:**
 
-Required fields in request body:
+- **email**: The user's email address.
+- **password**: The user's password.
 
-- `email` - Realtor's email
-- `password` - Realtor's password
+**Response:**
 
-Response:
+Upon successful authentication, the API will redirect to `/api/v1/users/me` and return a JSON object with the user's details, for example:
 
 ```json
 {
-  "status": "OK",
-  "token": "JWT_TOKEN"
+  "data": {
+    "id": "user_id",
+    "email": "user_email",
+    "username": "username",
+    "full_name": "User's Full Name",
+    "start_date": "If realtor",
+    "is_staff": false,
+    "is_active": true,
+    "provider": "email",
+    "created_at": "date",
+    "updated_at": "date"
+  }
 }
+
+Note: Session data is stored in the Redis database.
 ```
 
 ## 🏗️ Project Structure
 
 ```
-src/
+app/
 ├── api/
 │   └── listings.go # API handlers
 ├── config/
