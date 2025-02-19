@@ -9,7 +9,7 @@ import (
 )
 
 type Listing struct {
-	ID             uuid.UUID       `gorm:"type:uuid;primary_key;default:gen_random_uuid()"` // Primary key with UUID
+	ID             uuid.UUID       `gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
 	Title          string          `gorm:"type:varchar(120);index" json:"title" validate:"required,min=10"`
 	Address        string          `gorm:"type:varchar(255);uniqueIndex" json:"address" validate:"required"`
 	City           string          `gorm:"type:varchar(255)" json:"city" validate:"required"`
@@ -26,12 +26,13 @@ type Listing struct {
 	Pool           bool            `gorm:"type:bool" json:"pool,omitempty"`
 	YearBuilt      int             `gorm:"type:int" json:"year_built" validate:"gte=1800,lte=2025"`
 	// Media fields with cloudinary
-	Media datatypes.JSON `gorm:"type:jsonb" json:"media,omitempty" validate:"mediaarray"`
+	Media  datatypes.JSON `gorm:"type:jsonb" json:"media,omitempty" validate:"mediaarray"`
+	Status string         `gorm:"type:varchar(20);default:'DRAFT'" json:"status" validate:"oneof=DRAFT PUBLISHED ARCHIVED"`
 
-	Status    string    `gorm:"type:varchar(20);default:'DRAFT'" json:"status" validate:"oneof=DRAFT PUBLISHED ARCHIVED"`
+	// ForeignKey to Realtor model
+	RealtorID *uuid.UUID `gorm:"type:uuid;index" json:"realtor_id"`
+	Realtor   Realtor    `gorm:"foreignKey:RealtorID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"realtor"`
+
 	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`
-	// ForeignKey to Realtor model
-	RealtorID *uuid.UUID `gorm:"type:uuid" json:"realtor_id"`
-	Realtor   Realtor    `gorm:"foreignKey:RealtorID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"realtor"`
 }

@@ -74,14 +74,6 @@ func AuthInit(c *gin.Context) {
 	c.Redirect(http.StatusTemporaryRedirect, authUrl)
 }
 
-// check if user email is verified
-// rawData := user.RawData
-// emailVerified, _ := rawData["email_verified"].(bool)
-// if !emailVerified {
-// 	c.JSON(http.StatusForbidden, gin.H{"error": "OAuth failed", "message": "Email not verified"})
-// 	return
-// }
-
 func AuthCallback(c *gin.Context) {
 	provider := c.Param("provider")
 	req := c.Request.WithContext(context.WithValue(c.Request.Context(), "provider", provider))
@@ -124,6 +116,7 @@ func AuthCallback(c *gin.Context) {
 		return
 	}
 
+	// Redirect to the original URL or the user profile page
 	if redirectURL := session.Get("oauth_redirect"); redirectURL != nil {
 		session.Delete("oauth_redirect")
 		session.Save()
