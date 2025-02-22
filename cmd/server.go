@@ -7,14 +7,17 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// config struct for database connection
+var configVars = config.LoadConfig()
+
 func Server() *gin.Engine {
 	err := godotenv.Load()
 	if err != nil {
 		panic("Error loading .env file")
 	}
 
-	config.ConnectDatabase()
-	router := routers.SetupRouter(config.SessionStorage())
+	config.ConnectDatabase(configVars)
+	router := routers.SetupRouter(configVars)
 
 	return router
 }

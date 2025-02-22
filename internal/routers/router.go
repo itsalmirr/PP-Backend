@@ -4,15 +4,14 @@ import (
 	"backend.com/go-backend/internal/api"
 	"backend.com/go-backend/internal/config"
 	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter(session_store redis.Store) *gin.Engine {
+func SetupRouter(keys *config.Config) *gin.Engine {
 	r := gin.Default()
-	r.Use(sessions.Sessions("auth-session", session_store))
+	r.Use(sessions.Sessions("auth-session", config.SessionStorage(keys)))
 
-	config.InitOAuth()
+	config.InitOAuth(keys)
 	// Public routes
 	r.GET("/auth/:provider", api.AuthInit)
 	r.GET("/auth/:provider/callback", api.AuthCallback)

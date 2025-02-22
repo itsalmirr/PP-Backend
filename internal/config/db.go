@@ -4,7 +4,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net/http"
-	"os"
 	"time"
 
 	"backend.com/go-backend/internal/models"
@@ -17,14 +16,14 @@ import (
 
 var DB *gorm.DB
 
-func ConnectDatabase() {
+func ConnectDatabase(cfg *Config) {
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_NAME"),
-		os.Getenv("DB_PORT"),
+		cfg.DBHost,
+		cfg.DBUser,
+		cfg.DBPassword,
+		cfg.DBName,
+		cfg.DBPort,
 	)
 
 	// Gorm dafabase config
@@ -67,9 +66,9 @@ func ConnectDatabase() {
 	DB = database // Assign the database connection to the global variable
 }
 
-func SessionStorage() redis.Store {
+func SessionStorage(cfg *Config) redis.Store {
 	// Validate secret
-	secretHex := os.Getenv("SESSION_SECRET")
+	secretHex := cfg.SessionSecret
 	if len(secretHex) != 32 && len(secretHex) != 64 { // Check byte length
 		panic("SESSION_SECRET must be 32 or 64 bytes (64/128 hex chars)")
 	}
@@ -82,7 +81,7 @@ func SessionStorage() redis.Store {
 	store, err := redis.NewStore(
 		10,
 		"tcp",
-		os.Getenv("REDIS_URL"),
+		cfg.RedisURL,
 		"",
 		key, // Pass to both key arguments
 		key,
