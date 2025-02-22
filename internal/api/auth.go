@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"backend.com/go-backend/app/config"
-	"backend.com/go-backend/app/models"
-	"backend.com/go-backend/app/repositories"
+	"backend.com/go-backend/internal/config"
+	"backend.com/go-backend/internal/models"
+	"backend.com/go-backend/internal/repositories"
 	"github.com/alexedwards/argon2id"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"

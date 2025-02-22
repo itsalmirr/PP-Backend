@@ -3,8 +3,8 @@ package repositories
 import (
 	"errors"
 
-	"backend.com/go-backend/app/config"
-	"backend.com/go-backend/app/models"
+	"backend.com/go-backend/internal/config"
+	"backend.com/go-backend/internal/models"
 	"github.com/alexedwards/argon2id"
 	"gorm.io/gorm"
 )

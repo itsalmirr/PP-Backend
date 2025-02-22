@@ -3,7 +3,7 @@ package api
 import (
 	"net/http"
 
-	"backend.com/go-backend/app/repositories"
+	"backend.com/go-backend/internal/repositories"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
@@ -36,6 +36,12 @@ func CreateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "OK", "data": "User created!"})
 }
 
+// Dashboard handles requests to the dashboard endpoint.
+// It retrieves the user email from the session, ensuring that the user is authenticated.
+// If the email is missing or empty, it responds with an "Unauthorized" JSON error.
+// It then fetches the user details from the repository using the email. If an error occurs while fetching user data,
+// it responds with an Internal Server Error. Upon a successful fetch, it clears the user's password field
+// before returning the user data as a JSON response.
 func Dashboard(c *gin.Context) {
 	session := sessions.Default(c)
 	email, ok := session.Get("userEmail").(string)

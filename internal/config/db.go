@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"backend.com/go-backend/app/models"
+	"backend.com/go-backend/internal/models"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
 	"gorm.io/driver/postgres"

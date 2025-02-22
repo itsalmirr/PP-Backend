@@ -3,7 +3,7 @@ package api
 import (
 	"net/http"
 
-	"backend.com/go-backend/app/repositories"
+	"backend.com/go-backend/internal/repositories"
 	"github.com/gin-gonic/gin"
 )
 

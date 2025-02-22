@@ -1,8 +1,8 @@
 package routers
 
 import (
-	"backend.com/go-backend/app/api"
-	"backend.com/go-backend/app/config"
+	"backend.com/go-backend/internal/api"
+	"backend.com/go-backend/internal/config"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"

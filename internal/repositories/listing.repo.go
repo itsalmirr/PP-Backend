@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"backend.com/go-backend/app/config"
-	"backend.com/go-backend/app/models"
+	"backend.com/go-backend/internal/config"
+	"backend.com/go-backend/internal/models"
 )
 
 // Listing alias for brevity

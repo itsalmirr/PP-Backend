@@ -1,8 +1,8 @@
-package cmd
+package main
 
 import (
-	"backend.com/go-backend/app/config"
-	"backend.com/go-backend/app/routers"
+	"backend.com/go-backend/internal/config"
+	"backend.com/go-backend/internal/routers"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
