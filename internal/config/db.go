@@ -1,22 +1,23 @@
 package config
 
 import (
+	"database/sql"
 	"encoding/hex"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
-	"backend.com/go-backend/internal/models"
+	"backend.com/go-backend/ent"
+	"entgo.io/ent/dialect"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
-var DB *gorm.DB
+var EntClient *ent.Client
 
-func ConnectDatabase(cfg *Config) {
+func Connectdatabase(cfg *Config) {
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		cfg.DBHost,
@@ -26,45 +27,70 @@ func ConnectDatabase(cfg *Config) {
 		cfg.DBPort,
 	)
 
-	// Gorm dafabase config
-	config := &gorm.Config{
-		PrepareStmt:            true,
-		Logger:                 logger.Default.LogMode(logger.Info),
-		SkipDefaultTransaction: true,
-		NowFunc: func() time.Time {
-			return time.Now().UTC() // for consistent timezone
-		},
-	}
-
-	database, err := gorm.Open(postgres.New(postgres.Config{
-		DriverName: "pgx",
-		DSN:        dsn,
-	}), config)
+	// Open a connection to PostgreSQL using the pgx driver
+	db, err := sql.Open("pgx", dsn)
 	if err != nil {
-		panic("Failed to connect to database!")
+		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	sqlDB, err := database.DB()
-	if err != nil {
-		panic(fmt.Sprintf("Failed to get DB instance: %v", err))
-	}
-	sqlDB.SetMaxIdleConns(10)
-	sqlDB.SetMaxOpenConns(100)
-	sqlDB.SetConnMaxLifetime(time.Hour)
+	// Configure connection pool settings (matching GORM configuration)
+	db.SetMaxIdleConns(10)
+	db.SetMaxOpenConns(100)
+	db.SetConnMaxLifetime(time.Hour)
 
-	// Migrations
-	err = database.AutoMigrate(
-		&models.User{},
-		&models.Listing{},
-		&models.Realtor{},
-	)
-	if err != nil {
-		panic(fmt.Sprintf("Failed to migrate: %v", err))
-	}
+	drv := sql.OpenDB(dialect.Postgres, db)
 
-	fmt.Println("Database connected and migrated successfully!")
-	DB = database // Assign the database connection to the global variable
 }
+
+// func ConnectDatabase(cfg *Config) {
+// 	dsn := fmt.Sprintf(
+// 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+// 		cfg.DBHost,
+// 		cfg.DBUser,
+// 		cfg.DBPassword,
+// 		cfg.DBName,
+// 		cfg.DBPort,
+// 	)
+
+// 	// Gorm dafabase config
+// 	config := &gorm.Config{
+// 		PrepareStmt:            true,
+// 		Logger:                 logger.Default.LogMode(logger.Info),
+// 		SkipDefaultTransaction: true,
+// 		NowFunc: func() time.Time {
+// 			return time.Now().UTC() // for consistent timezone
+// 		},
+// 	}
+
+// 	database, err := gorm.Open(postgres.New(postgres.Config{
+// 		DriverName: "pgx",
+// 		DSN:        dsn,
+// 	}), config)
+// 	if err != nil {
+// 		panic("Failed to connect to database!")
+// 	}
+
+// 	sqlDB, err := database.DB()
+// 	if err != nil {
+// 		panic(fmt.Sprintf("Failed to get DB instance: %v", err))
+// 	}
+// 	sqlDB.SetMaxIdleConns(10)
+// 	sqlDB.SetMaxOpenConns(100)
+// 	sqlDB.SetConnMaxLifetime(time.Hour)
+
+// 	// Migrations
+// 	err = database.AutoMigrate(
+// 		&models.User{},
+// 		&models.Listing{},
+// 		&models.Realtor{},
+// 	)
+// 	if err != nil {
+// 		panic(fmt.Sprintf("Failed to migrate: %v", err))
+// 	}
+
+// 	fmt.Println("Database connected and migrated successfully!")
+// 	DB = database // Assign the database connection to the global variable
+// }
 
 func SessionStorage(cfg *Config) redis.Store {
 	// Validate secret
