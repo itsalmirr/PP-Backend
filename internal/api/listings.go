@@ -3,7 +3,7 @@ package api
 import (
 	"net/http"
 
-	"backend.com/go-backend/internal/models"
+	"backend.com/go-backend/ent"
 	"backend.com/go-backend/internal/repositories"
 	"github.com/gin-gonic/gin"
 )
@@ -22,13 +22,15 @@ type ListingQueryParams = repositories.ListingQueryParams
 // @Failure 500 {object} gin.H{"error": "Failed to create listing", "message": "Error message"}
 // @Router /listings [post]
 func CreateListing(c *gin.Context) {
-	var input models.Listing
+	var input *ent.Listing
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input", "message": "Please provide required fields"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input", "message": "Please provide required fields" + err.Error()})
 		return
 	}
 	// Create listing
-	err := repositories.CreateListingRepo(input)
+	entClient := c.MustGet("entClient").(*ent.Client)
+
+	err := repositories.CreateListingRepo(entClient, input)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create listing, please check your input", "message": err.Error()})
 		return
@@ -84,8 +86,9 @@ func GetListings(c *gin.Context) {
 		params.SortOrder = "desc" // Default sort order
 	}
 
+	entClient := c.MustGet("entClient").(*ent.Client)
 	// Get listings from repo
-	listings, meta, err := repositories.GetListingsRepo(params)
+	listings, meta, err := repositories.GetListingsRepo(entClient, params)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to retrive listings",

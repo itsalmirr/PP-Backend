@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	"backend.com/go-backend/internal/config"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
@@ -34,6 +35,30 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		c.Set("userEmail", email)
+		c.Next()
+	}
+}
+
+func DatabaseMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		db, ok := c.Get("db")
+		if !ok {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+				"error":   "Database client not found",
+				"message": "Unable to process request due to missing database connection",
+			})
+			return
+		}
+		dbTyped, ok := db.(*config.Database)
+		if !ok {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+				"error":   "Invalid database client type",
+				"message": "Database client is not of the expected type",
+			})
+			return
+		}
+		// Set the *ent.Client directly in the context
+		c.Set("entClient", dbTyped.Client)
 		c.Next()
 	}
 }

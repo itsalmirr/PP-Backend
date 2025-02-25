@@ -1,25 +1,23 @@
 package repositories
 
 import (
+	"context"
 	"errors"
-	"fmt"
-	"time"
 
-	"backend.com/go-backend/internal/config"
-	"backend.com/go-backend/internal/models"
+	"backend.com/go-backend/ent"
+	"backend.com/go-backend/ent/listing"
+	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 )
-
-// Listing alias for brevity
-type Listing = models.Listing
 
 // ListingQueryParams holds parameters for querying listings.
 type ListingQueryParams struct {
-	PageSize  int     `form:"page_size" binding:"omitempty,min=1,max=100"`
-	Cursor    string  `form:"cursor"`
-	SortBy    string  `form:"sort_by" binding:"omitempty,oneof=created_at price sqft"`
-	SortOrder string  `form:"sort_order" binding:"omitempty,oneof=asc desc"`
-	City      string  `form:"city"`
-	MinPrice  float64 `form:"min_price" binding:"omitempty,min=0"`
+	PageSize  int             `form:"page_size" binding:"omitempty,min=1,max=100"`
+	Cursor    string          `form:"cursor"`
+	SortBy    string          `form:"sort_by" binding:"omitempty,oneof=created_at price sqft"`
+	SortOrder string          `form:"sort_order" binding:"omitempty,oneof=asc desc"`
+	City      string          `form:"city"`
+	MinPrice  decimal.Decimal `form:"min_price" binding:"omitempty,min=0"`
 }
 
 // PaginationMeta holds metadata for paginated results.
@@ -40,123 +38,147 @@ var allowedSortOrders = map[string]bool{
 	"desc": true,
 }
 
-// CreateListingRepository creates a new listing record in the database.
-// It first checks if a listing with the given title or address already exists.
-// If such a listing exists, it returns an error.
-// If not, it creates a new listing record with the provided data.
-// The operation is performed within a transaction to ensure atomicity.
-//
-// Parameters:
-//   - data: CreateListingInput containing the details of the listing to be created.
-//
-// Returns:
-//   - error: An error if the listing already exists or if the creation fails, otherwise nil.
-func CreateListingRepo(data Listing) error {
-	var existingListing Listing
-	if err := config.DB.Where("title = ? OR address = ?", data.Title, data.Address).First(&existingListing).Error; err == nil {
-		return errors.New("listing with the given title or address already exists")
+func CreateListingRepo(entClient *ent.Client, data *ent.Listing) error {
+	ctx := context.Background()
 
+	exists, err := entClient.Listing.Query().Where(listing.Or(listing.TitleEQ(data.Title), listing.AddressEQ(data.Address))).Exist(ctx)
+	if err != nil {
+		return err
+	}
+	if exists {
+		return errors.New("listing with the given title or address already exists")
+	}
+
+	// Start a transaction
+	tx, err := entClient.Tx(ctx)
+	if err != nil {
+		return err
 	}
 
 	// Create a new listing
-	listing := Listing{
-		Title:          data.Title,
-		Address:        data.Address,
-		City:           data.City,
-		State:          data.State,
-		ZipCode:        data.ZipCode,
-		Description:    data.Description,
-		Price:          data.Price,
-		Bedroom:        data.Bedroom,
-		Bathroom:       data.Bathroom,
-		Garage:         data.Garage,
-		Sqft:           data.Sqft,
-		TypeOfProperty: data.TypeOfProperty,
-		LotSize:        data.LotSize,
-		Pool:           data.Pool,
-		YearBuilt:      data.YearBuilt,
-		Media:          data.Media,
-		Status:         data.Status,
-		RealtorID:      data.RealtorID,
+	_, err = tx.Listing.Create().SetAddress(data.Address).SetTitle(data.Title).SetCity(data.City).SetState(data.State).SetZipCode(data.ZipCode).SetDescription(data.Description).SetPrice(data.Price).SetBedroom(data.Bedroom).SetBathroom(data.Bathroom).SetGarage(data.Garage).SetSqft(data.Sqft).SetTypeOfProperty(data.TypeOfProperty).SetLotSize(data.LotSize).SetPool(data.Pool).SetYearBuilt(data.YearBuilt).SetMedia(data.Media).SetStatus(data.Status).SetRealtorID(data.RealtorID).Save(context.Background())
+	if err != nil {
+		tx.Rollback()
+		return errors.New("failed to create listing" + err.Error())
 	}
 
-	// Start a new transaction
-	tx := config.DB.Begin()
-	if err := tx.Create(&listing).Error; err != nil {
-		return errors.New("failed to create listing")
+	// Commit the transaction
+	if err := tx.Commit(); err != nil {
+		return errors.New("failed to commit transaction")
 	}
-	tx.Commit()
+
 	return nil
 }
 
-// GetListingsRepo retrieves listings from the database using various query parameters.
-// It supports filtering by city and minimum price, sorting by a specified field and order,
-// and implements cursor-based pagination. Additionally, the associated Realtor data for each listing is preloaded.
+// GetListingsRepository retrieves a paginated list of listings with optional filtering and sorting.
+//
+// It fetches listings from the database according to the provided query parameters, supporting
+// filtering by city and minimum price. The function implements cursor-based pagination and
+// can sort results by price, city, or creation time.
 //
 // Parameters:
-//
-//	params - a ListingQueryParams struct that includes:
-//	  - City: filter for listings in a specific city.
-//	  - MinPrice: minimum price filter for listings.
-//	  - SortBy & SortOrder: field and order to sort the result.
-//	  - Cursor: timestamp used for pagination to retrieve listings created before this value.
-//	  - PageSize: the maximum number of listings to retrieve.
+//   - entClient: Ent client for database operations
+//   - params: ListingQueryParams containing filtering, sorting, and pagination options
 //
 // Returns:
+//   - []*ent.Listing: Array of listing entities matching the query parameters
+//   - PaginationMeta: Metadata about the result set (total count, cursor for next page, etc.)
+//   - error: Any error that occurred during the query execution
 //
-//	[]models.Listing      - a slice containing the listings that match the filtering and sorting criteria.
-//	PaginationMeta        - metadata about the pagination including total count, a boolean flag indicating if there's a next page,
-//	                        and the cursor pointing to the last listing's creation time.
-//	error                 - an error value that is non-nil if the operation encounters an issue.
-func GetListingsRepo(params ListingQueryParams) ([]Listing, PaginationMeta, error) {
-	query := config.DB.Model(&Listing{})
+// The function handles the following pagination logic:
+//   - Default page size is 10 if not specified
+//   - Provides a cursor for fetching the next page of results
+//   - Returns total count of matching records regardless of pagination
+func GetListingsRepo(entClient *ent.Client, params ListingQueryParams) ([]*ent.Listing, PaginationMeta, error) {
+	ctx := context.Background()
 
-	// Validate and map SortBy field
-	_, ok := allowedSortFields[params.SortBy]
-	sortBy := params.SortBy
-	if !ok {
-		sortBy = "created_at" // Default to created_at field
+	query := entClient.Listing.Query()
+
+	if params.City != "" {
+		query = query.Where(listing.CityEQ(params.City))
+	}
+	if params.MinPrice.GreaterThan(decimal.NewFromInt(0)) {
+		query = query.Where(listing.PriceGTE(params.MinPrice))
 	}
 
-	// Validate and map SortOrder value
-	sortOrder := params.SortOrder
-	if _, ok := allowedSortOrders[sortOrder]; !ok {
-		sortOrder = "asc" // Default to ascending order
+	// Get total count
+	total, err := query.Clone().Count(ctx)
+	if err != nil {
+		return nil, PaginationMeta{}, err
 	}
 
 	// Sorting
-	query = query.Order(fmt.Sprintf("%s %s", sortBy, sortOrder))
+	if params.SortBy != "" && allowedSortFields[params.SortBy] {
+		order := params.SortOrder
+		if !allowedSortOrders[order] {
+			order = "asc"
+		}
+		switch params.SortBy {
+		case "price":
+			if order == "asc" {
+				query = query.Order(ent.Asc(listing.FieldPrice))
+			} else {
+				query = query.Order(ent.Desc(listing.FieldPrice))
+			}
+		case "city":
+			if order == "asc" {
+				query = query.Order(ent.Asc(listing.FieldCity))
+			} else {
+				query = query.Order(ent.Desc(listing.FieldCity))
+			}
+		case "created_at":
+			if order == "asc" {
+				query = query.Order(ent.Asc(listing.FieldCreateTime))
+			} else {
+				query = query.Order(ent.Desc(listing.FieldCreateTime))
+			}
+		}
+	} else {
+		query = query.Order(ent.Asc(listing.FieldCreateTime))
+	}
 
 	// Cursor based pagination
 	if params.Cursor != "" {
-		query = query.Where("created_at < ?", params.Cursor)
+		cursorID, err := uuid.Parse(params.Cursor)
+		if err != nil {
+			return nil, PaginationMeta{}, errors.New("invalid cursor")
+		}
+
+		if params.SortOrder == "asc" {
+			query = query.Where(listing.IDLT(cursorID))
+		} else {
+			query = query.Where(listing.IDGT(cursorID))
+		}
 	}
 
-	// Eager loading
-	query = query.Preload("Realtor")
-
-	// Execute query
-	var listings []Listing
-	result := query.Limit(params.PageSize).Find(&listings)
-
-	if result.Error != nil {
-		return nil, PaginationMeta{}, result.Error
+	pageSize := params.PageSize
+	if pageSize <= 0 {
+		pageSize = 10
 	}
 
-	var cursor string
-	hasNext := false
+	query = query.Limit(pageSize + 1)
 
-	if len(listings) > 0 {
-		hasNext = len(listings) == params.PageSize
-		cursor = listings[len(listings)-1].CreatedAt.Format(time.RFC3339)
+	listings, err := query.All(ctx)
+	if err != nil {
+		return nil, PaginationMeta{}, err
 	}
 
-	var total int64
-	config.DB.Model(&Listing{}).Count(&total)
+	hasNext := len(listings) > pageSize
+	if hasNext {
+		listings = listings[:pageSize]
+	}
 
-	return listings, PaginationMeta{
-		Total:   total,
+	var nextCursor string
+	if hasNext {
+		lastListing := listings[len(listings)-1]
+		nextCursor = lastListing.ID.String()
+	}
+
+	meta := PaginationMeta{
+		Total:   int64(total),
 		HasNext: hasNext,
-		Cursor:  cursor,
-	}, nil
+		Cursor:  nextCursor,
+	}
+
+	return listings, meta, nil
 }

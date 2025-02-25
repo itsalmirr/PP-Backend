@@ -27,7 +27,7 @@ func LoadConfig() *Config {
 		DBName:            getEnv("DB_NAME"),
 		DBPort:            getEnv("DB_PORT"),
 		GoogleClientID:    getEnv("GOOGLE_CLIENT_ID"),
-		GoogleSecret:      getEnv("GOOGLE_SECRET"),
+		GoogleSecret:      getEnv("GOOGLE_CLIENT_SECRET"),
 		GoogleCallbackURL: getEnv("GOOGLE_CALLBACK_URL"),
 		GitHubClientID:    getEnv("GITHUB_CLIENT_ID"),
 		GitHubSecret:      getEnv("GITHUB_CLIENT_SECRET"),

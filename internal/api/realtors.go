@@ -3,11 +3,10 @@ package api
 import (
 	"net/http"
 
+	"backend.com/go-backend/ent"
 	"backend.com/go-backend/internal/repositories"
 	"github.com/gin-gonic/gin"
 )
-
-type Realtor = repositories.Realtor
 
 // CreateRealtor handles the creation of a new realtor.
 // @Summary Create a new realtor
@@ -21,13 +20,14 @@ type Realtor = repositories.Realtor
 // @Failure 500 {object} gin.H{"error": "Failed to create realtor", "message": "Error message"}
 // @Router /realtors [post]
 func CreateRealtor(c *gin.Context) {
-	var input Realtor
+	var input *ent.Realtor
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input", "message": "Please provide required fields"})
 		return
 	}
+	entClient := c.MustGet("entClient").(*ent.Client)
 
-	err := repositories.CreateRealtorRepository(input)
+	err := repositories.CreateRealtorRepo(entClient, input)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create realtor", "message": err.Error()})
 		return
@@ -48,8 +48,9 @@ func CreateRealtor(c *gin.Context) {
 // @Router /realtors/{email} [get]
 func GetRealtor(c *gin.Context) {
 	email := c.Param("email")
+	entClient := c.MustGet("entClient").(*ent.Client)
 
-	realtor, err := repositories.GetRealtorRepository(email)
+	realtor, err := repositories.GetRealtorRepo(entClient, email)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get realtor", "message": err.Error()})
 	}

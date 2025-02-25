@@ -1,14 +1,13 @@
 package main
 
 import (
+	"context"
+
 	"backend.com/go-backend/internal/config"
 	"backend.com/go-backend/internal/routers"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
-
-// config struct for database connection
-var configVars = config.LoadConfig()
 
 func Server() *gin.Engine {
 	err := godotenv.Load()
@@ -16,8 +15,22 @@ func Server() *gin.Engine {
 		panic("Error loading .env file")
 	}
 
-	config.ConnectDatabase(configVars)
-	router := routers.SetupRouter(configVars)
+	configVars := config.LoadConfig()
+	ctx := context.Background()
+
+	// Connect to database
+	db, err := config.ConnectDatabase(ctx, configVars)
+	if err != nil {
+		panic("failed to connect database" + err.Error())
+	}
+
+	// Run migrations
+	if err := db.Migrate(ctx); err != nil {
+		panic("failed to run migrations: " + err.Error())
+	}
+
+	// Setup router
+	router := routers.SetupRouter(configVars, db)
 
 	return router
 }

@@ -1,14 +1,12 @@
 package repositories
 
 import (
+	"context"
 	"errors"
 
-	"backend.com/go-backend/internal/config"
-	"backend.com/go-backend/internal/models"
-	"gorm.io/gorm"
+	"backend.com/go-backend/ent"
+	"backend.com/go-backend/ent/realtor"
 )
-
-type Realtor = models.Realtor
 
 // CreateRealtorRepository creates a new realtor record in the database.
 // It first checks if a realtor with the given email or phone already exists.
@@ -21,30 +19,36 @@ type Realtor = models.Realtor
 //
 // Returns:
 //   - error: An error if the realtor already exists or if the creation fails, otherwise nil.
-func CreateRealtorRepository(data Realtor) error {
-	// check if realtor already exists
-	var existingRealtor Realtor
-	if err := config.DB.Where("email = ? OR phone = ?", data.Email, data.Phone).
-		First(&existingRealtor).Error; err == nil {
+func CreateRealtorRepo(entClient *ent.Client, data *ent.Realtor) error {
+	ctx := context.Background()
+
+	exists, err := entClient.Realtor.Query().Where(realtor.Or(realtor.EmailEQ(data.Email), realtor.PhoneEQ(data.Phone))).Exist(ctx)
+	if err != nil {
+		return err
+	}
+
+	if exists {
 		return errors.New("realtor with the given email or phone already exists")
 	}
 
-	// Create a new realtor
-	realtor := Realtor{
-		FullName:    data.FullName,
-		Photo:       data.Photo,
-		Description: data.Description,
-		Phone:       data.Phone,
-		Email:       data.Email,
-		IsMVP:       data.IsMVP,
+	// Start a transaction
+	tx, err := entClient.Tx(ctx)
+	if err != nil {
+		return err
 	}
 
-	// Start a new transaction
-	tx := config.DB.Begin()
-	if err := tx.Create(&realtor).Error; err != nil {
-		return errors.New("failed to create realtor")
+	// Create a new realtor
+	_, err = tx.Realtor.Create().SetEmail(data.Email).SetFullName(data.FullName).SetPhone(data.Phone).SetIsMvp(data.IsMvp).Save(context.Background())
+	if err != nil {
+		tx.Rollback()
+		return errors.New("failed to create realtor" + err.Error())
 	}
-	tx.Commit()
+
+	// Commit the transaction
+	if err := tx.Commit(); err != nil {
+		return errors.New("failed to commit transaction")
+	}
+
 	return nil
 }
 
@@ -52,13 +56,16 @@ func CreateRealtorRepository(data Realtor) error {
 // It returns a models.Realtor object and an error if any occurred during the query.
 // If the realtor is not found, it returns an error indicating "user not found".
 // If there is any other error during the query, it returns an error indicating "failed to get user".
-func GetRealtorRepository(email string) (Realtor, error) {
-	var realtor Realtor
-	if err := config.DB.Select("id", "email", "full_name", "is_mvp").Where("email = ?", email).First(&realtor).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return realtor, errors.New("realtor not found")
+func GetRealtorRepo(entClient *ent.Client, email string) (*ent.Realtor, error) {
+	ctx := context.Background()
+
+	realtor, err := entClient.Realtor.Query().Where(realtor.EmailEQ(email)).First(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, errors.New("realtor not found")
 		}
-		return realtor, errors.New("failed to get realtor")
+		return nil, errors.New("failed to get realtor")
 	}
+
 	return realtor, nil
 }

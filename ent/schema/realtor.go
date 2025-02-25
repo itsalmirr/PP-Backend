@@ -5,7 +5,9 @@ import (
 	"time"
 
 	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 	"entgo.io/ent/schema/mixin"
 	"github.com/google/uuid"
 )
@@ -44,5 +46,16 @@ func (Realtor) Fields() []ent.Field {
 
 // Edges of the Realtor.
 func (Realtor) Edges() []ent.Edge {
-	return []ent.Edge{}
+	return []ent.Edge{
+		edge.To("listings", Listing.Type),
+	}
+}
+
+// Indexes of the Realtor.
+func (Realtor) Indexes() []ent.Index {
+	return []ent.Index{
+		index.Fields("full_name"),
+		index.Fields("email").Unique(),
+		index.Fields("phone").Unique(),
+	}
 }

@@ -1,22 +1,13 @@
 package repositories
 
 import (
+	"context"
 	"errors"
 
-	"backend.com/go-backend/internal/config"
-	"backend.com/go-backend/internal/models"
+	"backend.com/go-backend/ent"
+	"backend.com/go-backend/ent/user"
 	"github.com/alexedwards/argon2id"
-	"gorm.io/gorm"
 )
-
-type CreateUserInput struct {
-	Avatar   string `json:"avatar"`
-	Email    string `json:"email" binding:"required"`
-	Username string `json:"username" binding:"required"`
-	FullName string `json:"full_name" binding:"required"`
-	Password string `json:"password" binding:"required"`
-	IsStaff  bool   `json:"is_staff"`
-}
 
 // CreateUserRepository creates a new user in the database.
 // It first checks if a user with the given email or username already exists.
@@ -28,33 +19,41 @@ type CreateUserInput struct {
 //
 // Returns:
 //   - error: An error if the user already exists, if password hashing fails, or if the user creation fails.
-func CreateUserRepository(data CreateUserInput) error {
-	// check if user already exists
-	var existingUser models.User
-	if err := config.DB.Where("email = ? OR username = ?", data.Email, data.Username).
-		First(&existingUser).Error; err == nil {
+func CreateUserRepository(entClient *ent.Client, data *ent.User) error {
+	ctx := context.Background()
+
+	exists, err := entClient.User.Query().Where(user.Or(user.EmailEQ(data.Email), user.UsernameEQ(data.Username))).Exist(ctx)
+	if err != nil {
+		return err
+	}
+
+	if exists {
 		return errors.New("user with the given email or username already exists")
 	}
 
-	// Create a new user
-	hashedPassword, err := argon2id.CreateHash(data.Password, argon2id.DefaultParams)
-	println("Generated Hash:", hashedPassword)
+	// Hash the password
+	hash, err := argon2id.CreateHash(data.Password, argon2id.DefaultParams)
 	if err != nil {
 		return errors.New("failed to hash password")
 	}
 
-	user := models.User{
-		Avatar:   data.Avatar,
-		Email:    data.Email,
-		Username: data.Username,
-		FullName: data.FullName,
-		Password: hashedPassword,
-		IsStaff:  data.IsStaff,
+	// Start a transaction
+	tx, err := entClient.Tx(ctx)
+	if err != nil {
+		return err
 	}
 
-	if err := config.DB.Create(&user).Error; err != nil {
-		return errors.New("failed to create user")
+	_, err = tx.User.Create().SetAvatar(data.Avatar).SetEmail(data.Email).SetUsername(data.Username).SetFullName(data.FullName).SetPassword(hash).SetStartDate(data.StartDate).SetIsStaff(data.IsStaff).SetIsActive(data.IsActive).SetProvider(data.Provider).SetProviderID(data.ProviderID).Save(context.Background())
+	if err != nil {
+		tx.Rollback()
+		return errors.New("failed to create user" + err.Error())
 	}
+
+	// Commit the transaction
+	if err := tx.Commit(); err != nil {
+		return errors.New("failed to commit transaction")
+	}
+
 	return nil
 }
 
@@ -69,20 +68,14 @@ func CreateUserRepository(data CreateUserInput) error {
 // Returns:
 //   - models.User: The user object containing the user's details.
 //   - error: An error object if there is an issue during the retrieval process.
-func GetUserRepository(identifier string) (models.User, error) {
-	var user models.User
+// func GetUserRepository(identifier string) (models.User, error) {
+// 	var user models.User
 
-	if err := config.DB.Session(&gorm.Session{PrepareStmt: false}).Select("id", "avatar", "email", "username", "full_name", "password", "start_date", "is_staff", "is_active", "provider", "provider_id").Where("email = ? OR provider_id = ?", identifier, identifier).First(&user).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return user, errors.New("user not found")
-		}
-		return user, errors.New("failed to get user")
-	}
-	return user, nil
-}
-
-func CheckEmailExists(email string) bool {
-	var count int64
-	config.DB.Model(&models.User{}).Where("email = ?", email).Count(&count)
-	return count > 0
-}
+// 	if err := config.DB.Session(&gorm.Session{PrepareStmt: false}).Select("id", "avatar", "email", "username", "full_name", "password", "start_date", "is_staff", "is_active", "provider", "provider_id").Where("email = ? OR provider_id = ?", identifier, identifier).First(&user).Error; err != nil {
+// 		if err == gorm.ErrRecordNotFound {
+// 			return user, errors.New("user not found")
+// 		}
+// 		return user, errors.New("failed to get user")
+// 	}
+// 	return user, nil
+// }
