@@ -1,16 +1,23 @@
 FROM golang:1.24-alpine
 
+# Install CompileDaemon for live reloading
 RUN go install github.com/githubnemo/CompileDaemon@latest
 
+# Set working directory inside the container
 WORKDIR /app
 
+# Copy dependency files first to leverage Docker caching
 COPY go.mod go.sum ./
 RUN go mod download
 
+# Copy the entire project into the container
 COPY . .
 
+# Expose the application port
 EXPOSE 8080
-ENTRYPOINT ["CompileDaemon", "--build=go build -o main ./app", "--command=./main"]
+
+# Use CompileDaemon to rebuild and restart on code changes
+ENTRYPOINT ["CompileDaemon", "--build=go build -o main ./cmd", "--command=./main"]
 
 # Build stage
 # FROM golang:1.24-alpine AS builder

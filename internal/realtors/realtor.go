@@ -6,22 +6,21 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 	"entgo.io/ent/schema/mixin"
 	"github.com/google/uuid"
 )
 
-// Realtor holds the schema definition for the Realtor entity.
 type Realtor struct {
 	ent.Schema
 }
 
 func (Realtor) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		mixin.Time{}, // CreatedAt/UpdatedAt
+		mixin.Time{},
 	}
 }
 
-// Fields of the Realtor.
 func (Realtor) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).Default(uuid.New).StorageKey("id"),
@@ -42,7 +41,8 @@ func (Realtor) Fields() []ent.Field {
 	}
 }
 
-// Edges of the Realtor.
-func (Realtor) Edges() []ent.Edge {
-	return []ent.Edge{}
+func (Realtor) Indexes() []ent.Index {
+	return []ent.Index{
+		index.Fields("full_name"),
+	}
 }

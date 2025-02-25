@@ -1,6 +1,7 @@
 package config
 
 import (
+	"context"
 	"database/sql"
 	"encoding/hex"
 	"fmt"
@@ -10,36 +11,71 @@ import (
 
 	"backend.com/go-backend/ent"
 	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql/schema"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
-var EntClient *ent.Client
+var Client *ent.Client
 
 func Connectdatabase(cfg *Config) {
 	dsn := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
-		cfg.DBHost,
+		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		cfg.DBUser,
 		cfg.DBPassword,
-		cfg.DBName,
+		cfg.DBHost,
 		cfg.DBPort,
+		cfg.DBName,
 	)
 
-	// Open a connection to PostgreSQL using the pgx driver
-	db, err := sql.Open("pgx", dsn)
+	// Create a new Ent client
+	drv, err := sql.Open(dialect.Postgres, dsn)
 	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
+		log.Fatalf("Failed to create database driver: %v", err)
+		panic("Failed to create database driver")
 	}
 
-	// Configure connection pool settings (matching GORM configuration)
+	// Configure connection pool settings
+	db := drv.DB()
 	db.SetMaxIdleConns(10)
 	db.SetMaxOpenConns(100)
 	db.SetConnMaxLifetime(time.Hour)
 
-	drv := sql.OpenDB(dialect.Postgres, db)
+	// Create the Ent client
+	Client = ent.NewClient(ent.Driver(drv))
 
+	// Run migrations using Atlas
+	ctx := context.Background()
+	if err := migrateDatabase(ctx, Client); err != nil {
+		log.Fatalf("Failed to run migrations: %v", err)
+	}
+
+	fmt.Println("Database connected and migrated successfully!")
+}
+
+func migrateDatabase(ctx context.Context, client *ent.Client) error {
+	// Create an Atlas migration engine
+	opts := []schema.MigrateOption{
+		schema.WithGlobalUniqueID(true),
+		schema.WithDropIndex(true),
+		schema.WithDropColumn(true),
+	}
+
+	// Create a migration plan
+	err := client.Schema.Create(ctx, opts...)
+	if err != nil {
+		return fmt.Errorf("failed creating schema resources: %v", err)
+	}
+
+	return nil
+}
+
+// CloseDatabase closes the database connection
+func CloseDatabase() {
+	if Client != nil {
+		Client.Close()
+	}
 }
 
 // func ConnectDatabase(cfg *Config) {

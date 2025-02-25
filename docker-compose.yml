@@ -4,14 +4,8 @@ services:
     ports:
       - '8080:8080'
     volumes:
+      - .:/app
       - ${PWD}/.env:/app/.env
-    develop:
-      watch:
-        - action: sync
-          path: ./
-          target: /app
-        - action: rebuild
-          path: ./go.mod
     depends_on:
       - postgres
       - redis
@@ -40,7 +34,6 @@ services:
 volumes:
   redis-data:
   postgres-data:
-  go-mod:
 
 networks:
   backend:
