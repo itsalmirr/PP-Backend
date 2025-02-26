@@ -71,21 +71,6 @@ func GetListings(c *gin.Context) {
 		return
 	}
 
-	// Default values if not provided
-	if params.PageSize <= 0 || params.PageSize > 100 {
-		params.PageSize = 10 // Default page size
-	}
-
-	// Default sort field and order
-	if params.SortBy == "" {
-		params.SortBy = "created_at" // Default sort field
-	}
-
-	// Default sort order
-	if params.SortOrder == "" {
-		params.SortOrder = "desc" // Default sort order
-	}
-
 	entClient := c.MustGet("entClient").(*ent.Client)
 	// Get listings from repo
 	listings, meta, err := repositories.GetListingsRepo(entClient, params)

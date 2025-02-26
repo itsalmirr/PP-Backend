@@ -56,7 +56,27 @@ func CreateListingRepo(entClient *ent.Client, data *ent.Listing) error {
 	}
 
 	// Create a new listing
-	_, err = tx.Listing.Create().SetAddress(data.Address).SetTitle(data.Title).SetCity(data.City).SetState(data.State).SetZipCode(data.ZipCode).SetDescription(data.Description).SetPrice(data.Price).SetBedroom(data.Bedroom).SetBathroom(data.Bathroom).SetGarage(data.Garage).SetSqft(data.Sqft).SetTypeOfProperty(data.TypeOfProperty).SetLotSize(data.LotSize).SetPool(data.Pool).SetYearBuilt(data.YearBuilt).SetMedia(data.Media).SetStatus(data.Status).SetRealtorID(data.RealtorID).Save(context.Background())
+	_, err = tx.Listing.Create().
+		SetAddress(data.Address).
+		SetTitle(data.Title).
+		SetCity(data.City).
+		SetState(data.State).
+		SetZipCode(data.ZipCode).
+		SetDescription(data.Description).
+		SetPrice(data.Price).
+		SetBedroom(data.Bedroom).
+		SetBathroom(data.Bathroom).
+		SetGarage(data.Garage).
+		SetSqft(data.Sqft).
+		SetTypeOfProperty(data.TypeOfProperty).
+		SetLotSize(data.LotSize).
+		SetPool(data.Pool).
+		SetYearBuilt(data.YearBuilt).
+		SetMedia(data.Media).
+		SetStatus(data.Status).
+		SetRealtorID(data.RealtorID).
+		Save(context.Background())
+
 	if err != nil {
 		tx.Rollback()
 		return errors.New("failed to create listing" + err.Error())
