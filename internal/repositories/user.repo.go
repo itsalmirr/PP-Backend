@@ -32,7 +32,7 @@ func CreateUserRepo(entClient *ent.Client, data *ent.User) error {
 	}
 
 	// Hash the password
-	hash, err := argon2id.CreateHash(data.Password, argon2id.DefaultParams)
+	hashedPassword, err := argon2id.CreateHash(data.Password, argon2id.DefaultParams)
 	if err != nil {
 		return errors.New("failed to hash password")
 	}
@@ -43,7 +43,18 @@ func CreateUserRepo(entClient *ent.Client, data *ent.User) error {
 		return err
 	}
 
-	_, err = tx.User.Create().SetAvatar(data.Avatar).SetEmail(data.Email).SetUsername(data.Username).SetFullName(data.FullName).SetPassword(hash).SetStartDate(data.StartDate).SetIsStaff(data.IsStaff).SetIsActive(data.IsActive).SetProvider(data.Provider).SetProviderID(data.ProviderID).Save(context.Background())
+	_, err = tx.User.Create().
+		SetAvatar(data.Avatar).
+		SetEmail(data.Email).
+		SetUsername(data.Username).
+		SetFullName(data.FullName).
+		SetPassword(hashedPassword).
+		SetStartDate(data.StartDate).
+		SetIsStaff(data.IsStaff).
+		SetIsActive(data.IsActive).
+		SetProvider(data.Provider).
+		SetProviderID(data.ProviderID).
+		Save(context.Background())
 	if err != nil {
 		tx.Rollback()
 		return errors.New("failed to create user" + err.Error())
@@ -68,14 +79,16 @@ func CreateUserRepo(entClient *ent.Client, data *ent.User) error {
 // Returns:
 //   - models.User: The user object containing the user's details.
 //   - error: An error object if there is an issue during the retrieval process.
-// func GetUserRepository(identifier string) (models.User, error) {
-// 	var user models.User
+func GetUserRepo(entClient *ent.Client, identifier string) (*ent.User, error) {
+	ctx := context.Background()
 
-// 	if err := config.DB.Session(&gorm.Session{PrepareStmt: false}).Select("id", "avatar", "email", "username", "full_name", "password", "start_date", "is_staff", "is_active", "provider", "provider_id").Where("email = ? OR provider_id = ?", identifier, identifier).First(&user).Error; err != nil {
-// 		if err == gorm.ErrRecordNotFound {
-// 			return user, errors.New("user not found")
-// 		}
-// 		return user, errors.New("failed to get user")
-// 	}
-// 	return user, nil
-// }
+	user, err := entClient.User.Query().Where(user.EmailEQ(identifier)).Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, errors.New("user not found")
+		}
+		return nil, errors.New("failed to get user")
+	}
+
+	return user, nil
+}

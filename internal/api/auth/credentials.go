@@ -1,5 +1,16 @@
 package auth
 
+import (
+	"fmt"
+	"net/http"
+
+	"backend.com/go-backend/ent"
+	"backend.com/go-backend/internal/repositories"
+	"github.com/alexedwards/argon2id"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
+)
+
 type SignInInput struct {
 	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
@@ -11,35 +22,56 @@ type SignInInput struct {
 // If the user does not exist or the password is incorrect, it returns a 401 status code with an error message.
 // If there is an internal server error, it returns a 500 status code with an error message.
 // On successful sign-in, it creates a session and returns a 200 status code with a success message.
-// func SignIn(c *gin.Context) {
-// 	provider := c.Param("provider")
+func EmailSignIn(c *gin.Context) {
+	provider := c.Param("provider")
 
-// 	var input SignInInput
-// 	if err := c.ShouldBindJSON(&input); err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid input", "message": "Please provide required fields"})
-// 		return
-// 	}
+	var input SignInInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Invalid input",
+			"message": "Please provide required fields",
+		})
+		return
+	}
 
-// 	// Check if user exists
-// 	user, err := repositories.GetUserRepository(input.Email)
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user", "message": "User not found"})
-// 		return
-// 	}
+	// Check if user exists
+	entClient := c.MustGet("entClient").(*ent.Client)
+	user, err := repositories.GetUserRepo(entClient, input.Email)
+	fmt.Printf("User password: %v\n", user.Password)
+	fmt.Print("Input password:" + input.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to get user",
+			"message": "User not found",
+		})
+		return
+	}
 
-// 	// check if password is correct
-// 	if match, err := argon2id.ComparePasswordAndHash(input.Password, user.Password); err != nil || !match {
-// 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials", "message": "Incorrect password"})
-// 		return
-// 	}
+	// check if password is correct
+	match, err := argon2id.ComparePasswordAndHash(input.Password, user.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to compare password",
+			"message": err.Error(),
+		})
+		return
+	}
 
-// 	session := sessions.Default(c)
-// 	session.Set("userEmail", user.Email)
-// 	session.Set("authProvider", provider)
-// 	if err := session.Save(); err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session", "message": err.Error()})
-// 		return
-// 	}
+	if !match {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error":   "Unauthorized",
+			"message": "Invalid email or password",
+		})
+		return
+	}
 
-// 	c.Redirect(http.StatusSeeOther, "/api/v1/users/me")
-// }
+	session := sessions.Default(c)
+	session.Set("userEmail", user.Email)
+	session.Set("authProvider", provider)
+	if err := session.Save(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save session", "message": err.Error()})
+		return
+	}
+
+	c.Redirect(http.StatusSeeOther, "/api/v1/users/me")
+}

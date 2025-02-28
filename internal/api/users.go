@@ -5,6 +5,7 @@ import (
 
 	"backend.com/go-backend/ent"
 	"backend.com/go-backend/internal/repositories"
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -28,8 +29,8 @@ func CreateUser(c *gin.Context) {
 		})
 		return
 	}
-	entClient := c.MustGet("entClient").(*ent.Client)
 
+	entClient := c.MustGet("entClient").(*ent.Client)
 	err := repositories.CreateUserRepo(entClient, input)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -51,42 +52,22 @@ func CreateUser(c *gin.Context) {
 // It then fetches the user details from the repository using the email. If an error occurs while fetching user data,
 // it responds with an Internal Server Error. Upon a successful fetch, it clears the user's password field
 // before returning the user data as a JSON response.
-// func Dashboard(c *gin.Context) {
-// 	session := sessions.Default(c)
-// 	email, ok := session.Get("userEmail").(string)
-// 	if !ok || email == "" {
-// 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized", "message": "Please sign in"})
-// 		return
-// 	}
+func Dashboard(c *gin.Context) {
+	session := sessions.Default(c)
+	email, ok := session.Get("userEmail").(string)
+	if !ok || email == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized", "message": "Please sign in"})
+		return
+	}
+	entClient := c.MustGet("entClient").(*ent.Client)
+	user, err := repositories.GetUserRepo(entClient, email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user", "message": err.Error()})
+		return
+	}
 
-// 	user, err := repositories.GetUserRepository(email)
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user", "message": err.Error()})
-// 		return
-// 	}
+	// Remove the password hash from the user object
+	user.Password = ""
 
-// 	// Remove the password hash from the user object
-// 	user.Password = ""
-
-// 	c.JSON(http.StatusOK, gin.H{"data": user})
-// }
-
-// GetUser handles the HTTP request to retrieve a user by email.
-// @Summary Get user by email
-// @Description Get user by email from the repository
-// @Tags users
-// @Accept json
-// @Produce json
-// @Param email path string true "User Email"
-// @Success 200 {object} gin.H{"data": interface{}}
-// @Failure 500 {object} gin.H{"error": string, "message": string}
-// @Router /users/{email} [get]
-// func GetUser(c *gin.Context) {
-// 	email := c.Param("email")
-
-// 	user, err := repositories.GetUserRepository(email)
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user", "message": err.Error()})
-// 	}
-// 	c.JSON(http.StatusOK, gin.H{"data": user})
-// }
+	c.JSON(http.StatusOK, gin.H{"data": user})
+}

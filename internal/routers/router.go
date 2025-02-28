@@ -24,12 +24,11 @@ func SetupRouter(keys *config.Config, db *config.Database) *gin.Engine {
 	public := r.Group("/api/v1")
 	{
 		// Group of user routes
-		// userRoutes := public.Group("/users")
-		// {
-		// 	userRoutes.POST("/", api.CreateUser)
-		// 	// userRoutes.GET("/:email", api.GetUser)
-		// 	userRoutes.POST("/signin", auth.SignIn)
-		// }
+		userRoutes := public.Group("/users")
+		{
+			userRoutes.POST("/", api.CreateUser)
+			userRoutes.POST("/signin", auth.EmailSignIn)
+		}
 		// Group of realtor routes
 		realtorRoutes := public.Group("/realtors")
 		{
@@ -48,10 +47,10 @@ func SetupRouter(keys *config.Config, db *config.Database) *gin.Engine {
 	private.Use(AuthMiddleware())
 	{
 		// Group of user routes
-		// userRoutes := private.Group("/users")
-		// {
-		// 	userRoutes.GET("/me", api.Dashboard)
-		// }
+		userRoutes := private.Group("/users")
+		{
+			userRoutes.GET("/me", api.Dashboard)
+		}
 		// Group of realtor routes
 		// realtorRoutes := private.Group("/realtors")
 		// {
