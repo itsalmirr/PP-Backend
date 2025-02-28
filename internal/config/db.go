@@ -98,8 +98,8 @@ func (db *Database) Close() error {
 
 func SessionStorage(cfg *Config) redis.Store {
 	// Validate secret
-	secretHex := cfg.SessionSecret
-	if len(secretHex) != 32 && len(secretHex) != 64 { // Check byte length
+	secretHex := cfg.SessionKey
+	if len(secretHex) != 64 && len(secretHex) != 128 { // Check byte length
 		panic("SESSION_SECRET must be 32 or 64 bytes (64/128 hex chars)")
 	}
 
@@ -113,7 +113,7 @@ func SessionStorage(cfg *Config) redis.Store {
 		"tcp",
 		cfg.RedisURL,
 		"",
-		key, // Pass to both key arguments
+		key,
 		key,
 	)
 

@@ -26,7 +26,6 @@ func (User) Mixin() []ent.Mixin {
 // Fields of the User.
 func (User) Fields() []ent.Field {
 	emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
-	usernameRegex := regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
 
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).Default(uuid.New),
@@ -40,8 +39,7 @@ func (User) Fields() []ent.Field {
 			MaxLen(120).
 			Unique().
 			NotEmpty().
-			MinLen(3).
-			Match(usernameRegex),
+			MinLen(3),
 		field.String("full_name").MaxLen(100).NotEmpty(),
 		field.Time("start_date").Default(time.Now).Immutable(),
 		field.Bool("is_staff").Default(false),

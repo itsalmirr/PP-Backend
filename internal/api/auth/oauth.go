@@ -25,7 +25,10 @@ func AuthInit(c *gin.Context) {
 
 	authUrl, err := gothic.GetAuthURL(c.Writer, c.Request)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to get auth URL", "message": err.Error()})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to get auth URL",
+			"message": err.Error(),
+		})
 		return
 	}
 	fmt.Printf("URL: %s\n", authUrl)
@@ -42,7 +45,7 @@ func AuthCallback(c *gin.Context) {
 		return
 	}
 
-	if verified, _ := oauthUser.RawData["email_verified"].(bool); !verified && provider == "google" {
+	if verified, _ := oauthUser.RawData["verified_email"].(bool); !verified && provider == "google" {
 		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Email verification required", "message": "Please verify your email with " + provider})
 		return
 	}

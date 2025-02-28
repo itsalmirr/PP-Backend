@@ -16,7 +16,7 @@ type Config struct {
 	GitHubCallbackURL string
 	RedisURL          string
 	SessionKey        string
-	SessionSecret     string
+	// SessionSecret     string
 }
 
 func LoadConfig() *Config {
@@ -34,7 +34,7 @@ func LoadConfig() *Config {
 		GitHubCallbackURL: getEnv("GITHUB_CALLBACK_URL"),
 		RedisURL:          getEnv("REDIS_URL"),
 		SessionKey:        getEnv("SESSION_KEY"),
-		SessionSecret:     getEnv("SESSION_SECRET"),
+		// SessionSecret:     getEnv("SESSION_SECRET"),
 	}
 }
 

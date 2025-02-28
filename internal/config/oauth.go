@@ -1,7 +1,11 @@
 package config
 
 import (
+	"encoding/hex"
+
+	"github.com/gorilla/sessions"
 	"github.com/markbates/goth"
+	"github.com/markbates/goth/gothic"
 	"github.com/markbates/goth/providers/github"
 	"github.com/markbates/goth/providers/google"
 )
@@ -23,4 +27,11 @@ func InitOAuth(cfg *Config) {
 			"user:email",
 		),
 	)
+
+	key, err := hex.DecodeString(cfg.SessionKey)
+	if err != nil {
+		panic("Invalid session secret: " + err.Error())
+	}
+	store := sessions.NewCookieStore(key)
+	gothic.Store = store
 }

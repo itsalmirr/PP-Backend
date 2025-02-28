@@ -1,6 +1,8 @@
 package routers
 
 import (
+	"fmt"
+
 	"backend.com/go-backend/internal/api"
 	"backend.com/go-backend/internal/api/auth"
 	"backend.com/go-backend/internal/config"
@@ -18,6 +20,8 @@ func SetupRouter(keys *config.Config, db *config.Database) *gin.Engine {
 
 	r.Use(sessions.Sessions("auth-session", config.SessionStorage(keys)), DatabaseMiddleware())
 	config.InitOAuth(keys)
+	fmt.Println("Here: " + keys.SessionKey)
+
 	// Public routes
 	r.GET("/auth/:provider", auth.AuthInit)
 	r.GET("/auth/:provider/callback", auth.AuthCallback)
