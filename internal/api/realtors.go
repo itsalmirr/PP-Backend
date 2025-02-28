@@ -22,7 +22,10 @@ import (
 func CreateRealtor(c *gin.Context) {
 	var input *ent.Realtor
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input", "message": "Please provide required fields"})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Invalid input",
+			"message": "Please provide required fields",
+		})
 		return
 	}
 	entClient := c.MustGet("entClient").(*ent.Client)

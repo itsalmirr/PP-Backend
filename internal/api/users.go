@@ -1,5 +1,13 @@
 package api
 
+import (
+	"net/http"
+
+	"backend.com/go-backend/ent"
+	"backend.com/go-backend/internal/repositories"
+	"github.com/gin-gonic/gin"
+)
+
 // CreateUser handles the creation of a new user.
 // @Summary Create a new user
 // @Description This endpoint creates a new user with the provided input data.
@@ -11,22 +19,31 @@ package api
 // @Failure 400 {object} map[string]interface{} "error: Invalid input, message: Please provide required fields"
 // @Failure 500 {object} map[string]interface{} "error: Failed to create user, message: error message"
 // @Router /users [post]
-// func CreateUser(c *gin.Context) {
-// 	// Create a new user
-// 	var input repositories.CreateUserInput
-// 	if err := c.ShouldBindJSON(&input); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input", "message": "Please provide required fields"})
-// 		return
-// 	}
+func CreateUser(c *gin.Context) {
+	var input *ent.User
+	if err := c.ShouldBind(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Invalid input",
+			"message": "Please provide required fields",
+		})
+		return
+	}
+	entClient := c.MustGet("entClient").(*ent.Client)
 
-// 	err := repositories.CreateUserRepository(input)
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user", "message": err.Error()})
-// 		return
-// 	}
+	err := repositories.CreateUserRepo(entClient, input)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to create user",
+			"message": err.Error(),
+		})
+		return
+	}
 
-// 	c.JSON(http.StatusOK, gin.H{"status": "OK", "data": "User created!"})
-// }
+	c.JSON(http.StatusOK, gin.H{
+		"status": "OK",
+		"data":   "User created!",
+	})
+}
 
 // Dashboard handles requests to the dashboard endpoint.
 // It retrieves the user email from the session, ensuring that the user is authenticated.

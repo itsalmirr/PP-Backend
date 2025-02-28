@@ -19,7 +19,7 @@ import (
 //
 // Returns:
 //   - error: An error if the user already exists, if password hashing fails, or if the user creation fails.
-func CreateUserRepository(entClient *ent.Client, data *ent.User) error {
+func CreateUserRepo(entClient *ent.Client, data *ent.User) error {
 	ctx := context.Background()
 
 	exists, err := entClient.User.Query().Where(user.Or(user.EmailEQ(data.Email), user.UsernameEQ(data.Username))).Exist(ctx)
