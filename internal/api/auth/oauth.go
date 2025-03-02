@@ -20,7 +20,7 @@ func AuthInit(c *gin.Context) {
 	c.Request.URL.RawQuery = q.Encode()
 
 	session := sessions.Default(c)
-	session.Set("oauth_redirect", "/api/v1/users/me")
+	session.Set("oauth_redirect", "http://localhost:3000")
 	session.Save()
 
 	authUrl, err := gothic.GetAuthURL(c.Writer, c.Request)
@@ -86,6 +86,6 @@ func AuthCallback(c *gin.Context) {
 		session.Save()
 		c.Redirect(http.StatusSeeOther, redirectURL.(string))
 	} else {
-		c.Redirect(http.StatusFound, "http://localhost:3000/dashboard")
+		c.Redirect(http.StatusFound, "http://localhost:3000")
 	}
 }

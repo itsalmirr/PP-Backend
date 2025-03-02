@@ -6,6 +6,7 @@ import (
 	"backend.com/go-backend/internal/api"
 	"backend.com/go-backend/internal/api/auth"
 	"backend.com/go-backend/internal/config"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
@@ -17,7 +18,11 @@ func SetupRouter(keys *config.Config, db *config.Database) *gin.Engine {
 		c.Set("db", db)
 		c.Next()
 	})
-
+	cors_config := cors.DefaultConfig()
+	cors_config.AllowOrigins = []string{"http://localhost:3000"}
+	cors_config.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}
+	cors_config.AllowCredentials = true
+	r.Use(cors.New(cors_config))
 	r.Use(sessions.Sessions("auth-session", config.SessionStorage(keys)), DatabaseMiddleware())
 	config.InitOAuth(keys)
 	fmt.Println("Here: " + keys.SessionKey)
