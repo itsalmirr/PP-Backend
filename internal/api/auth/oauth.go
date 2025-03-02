@@ -86,6 +86,6 @@ func AuthCallback(c *gin.Context) {
 		session.Save()
 		c.Redirect(http.StatusSeeOther, redirectURL.(string))
 	} else {
-		c.Redirect(http.StatusFound, "/api/v1/users/me")
+		c.Redirect(http.StatusFound, "http://localhost:3000/dashboard")
 	}
 }
