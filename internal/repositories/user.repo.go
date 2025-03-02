@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
-	"backend.com/go-backend/ent"
-	"backend.com/go-backend/ent/user"
 	"github.com/alexedwards/argon2id"
+	"ppgroup.i0sys.com/ent"
+	"ppgroup.i0sys.com/ent/user"
 )
 
 // CreateUserRepository creates a new user in the database.

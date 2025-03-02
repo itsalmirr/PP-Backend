@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strings"
 
-	"backend.com/go-backend/internal/config"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"ppgroup.i0sys.com/internal/config"
 )
 
 func AuthMiddleware() gin.HandlerFunc {

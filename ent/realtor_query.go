@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"math"
 
-	"backend.com/go-backend/ent/listing"
-	"backend.com/go-backend/ent/predicate"
-	"backend.com/go-backend/ent/realtor"
+	"ppgroup.i0sys.com/ent/listing"
+	"ppgroup.i0sys.com/ent/predicate"
+	"ppgroup.i0sys.com/ent/realtor"
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

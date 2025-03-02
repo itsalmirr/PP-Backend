@@ -5,7 +5,7 @@ package listing
 import (
 	"time"
 
-	"backend.com/go-backend/ent/predicate"
+	"ppgroup.i0sys.com/ent/predicate"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"

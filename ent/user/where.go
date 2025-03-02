@@ -5,7 +5,7 @@ package user
 import (
 	"time"
 
-	"backend.com/go-backend/ent/predicate"
+	"ppgroup.i0sys.com/ent/predicate"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 )

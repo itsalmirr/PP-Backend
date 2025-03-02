@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"math"
 
-	"backend.com/go-backend/ent/predicate"
-	"backend.com/go-backend/ent/user"
+	"ppgroup.i0sys.com/ent/predicate"
+	"ppgroup.i0sys.com/ent/user"
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

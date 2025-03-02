@@ -3,10 +3,10 @@ package main
 import (
 	"context"
 
-	"backend.com/go-backend/internal/config"
-	"backend.com/go-backend/internal/routers"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"ppgroup.i0sys.com/internal/config"
+	"ppgroup.i0sys.com/internal/routers"
 )
 
 func Server() *gin.Engine {

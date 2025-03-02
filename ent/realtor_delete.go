@@ -5,8 +5,8 @@ package ent
 import (
 	"context"
 
-	"backend.com/go-backend/ent/predicate"
-	"backend.com/go-backend/ent/realtor"
+	"ppgroup.i0sys.com/ent/predicate"
+	"ppgroup.i0sys.com/ent/realtor"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"

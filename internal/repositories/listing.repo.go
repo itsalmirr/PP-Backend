@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 
-	"backend.com/go-backend/ent"
-	"backend.com/go-backend/ent/listing"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
+	"ppgroup.i0sys.com/ent"
+	"ppgroup.i0sys.com/ent/listing"
 )
 
 // ListingQueryParams holds parameters for querying listings.

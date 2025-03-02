@@ -16,7 +16,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
 
-	"backend.com/go-backend/ent"
+	"ppgroup.i0sys.com/ent"
 )
 
 type Database struct {

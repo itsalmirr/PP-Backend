@@ -3,10 +3,10 @@ package api
 import (
 	"net/http"
 
-	"backend.com/go-backend/ent"
-	"backend.com/go-backend/internal/repositories"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"ppgroup.i0sys.com/ent"
+	"ppgroup.i0sys.com/internal/repositories"
 )
 
 // CreateUser handles the creation of a new user.

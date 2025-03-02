@@ -9,9 +9,9 @@ import (
 	"reflect"
 	"sync"
 
-	"backend.com/go-backend/ent/listing"
-	"backend.com/go-backend/ent/realtor"
-	"backend.com/go-backend/ent/user"
+	"ppgroup.i0sys.com/ent/listing"
+	"ppgroup.i0sys.com/ent/realtor"
+	"ppgroup.i0sys.com/ent/user"
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

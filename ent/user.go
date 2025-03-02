@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"backend.com/go-backend/ent/user"
+	"ppgroup.i0sys.com/ent/user"
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"

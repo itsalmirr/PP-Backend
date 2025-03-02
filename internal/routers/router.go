@@ -3,12 +3,12 @@ package routers
 import (
 	"fmt"
 
-	"backend.com/go-backend/internal/api"
-	"backend.com/go-backend/internal/api/auth"
-	"backend.com/go-backend/internal/config"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"ppgroup.i0sys.com/internal/api"
+	"ppgroup.i0sys.com/internal/api/auth"
+	"ppgroup.i0sys.com/internal/config"
 )
 
 func SetupRouter(keys *config.Config, db *config.Database) *gin.Engine {

@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"backend.com/go-backend/ent"
+	"ppgroup.i0sys.com/ent"
 )
 
 // The ListingFunc type is an adapter to allow the use of ordinary

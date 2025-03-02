@@ -9,12 +9,12 @@ import (
 	"log"
 	"reflect"
 
-	"backend.com/go-backend/ent/migrate"
+	"ppgroup.i0sys.com/ent/migrate"
 	"github.com/google/uuid"
 
-	"backend.com/go-backend/ent/listing"
-	"backend.com/go-backend/ent/realtor"
-	"backend.com/go-backend/ent/user"
+	"ppgroup.i0sys.com/ent/listing"
+	"ppgroup.i0sys.com/ent/realtor"
+	"ppgroup.i0sys.com/ent/user"
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"

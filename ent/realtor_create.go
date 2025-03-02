@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"time"
 
-	"backend.com/go-backend/ent/listing"
-	"backend.com/go-backend/ent/realtor"
+	"ppgroup.i0sys.com/ent/listing"
+	"ppgroup.i0sys.com/ent/realtor"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"

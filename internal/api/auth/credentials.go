@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"backend.com/go-backend/ent"
-	"backend.com/go-backend/internal/repositories"
 	"github.com/alexedwards/argon2id"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"ppgroup.i0sys.com/ent"
+	"ppgroup.i0sys.com/internal/repositories"
 )
 
 type SignInInput struct {

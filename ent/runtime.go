@@ -5,10 +5,10 @@ package ent
 import (
 	"time"
 
-	"backend.com/go-backend/ent/listing"
-	"backend.com/go-backend/ent/realtor"
-	"backend.com/go-backend/ent/schema"
-	"backend.com/go-backend/ent/user"
+	"ppgroup.i0sys.com/ent/listing"
+	"ppgroup.i0sys.com/ent/realtor"
+	"ppgroup.i0sys.com/ent/schema"
+	"ppgroup.i0sys.com/ent/user"
 	"github.com/google/uuid"
 )
 

@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"backend.com/go-backend/ent"
-	"backend.com/go-backend/ent/realtor"
+	"ppgroup.i0sys.com/ent"
+	"ppgroup.i0sys.com/ent/realtor"
 )
 
 // CreateRealtorRepository creates a new realtor record in the database.

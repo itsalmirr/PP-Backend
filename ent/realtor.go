@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"backend.com/go-backend/ent/realtor"
+	"ppgroup.i0sys.com/ent/realtor"
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
