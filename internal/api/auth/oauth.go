@@ -31,7 +31,6 @@ func AuthInit(c *gin.Context) {
 		})
 		return
 	}
-	fmt.Printf("URL: %s\n", authUrl)
 	c.Redirect(http.StatusTemporaryRedirect, authUrl)
 }
 
