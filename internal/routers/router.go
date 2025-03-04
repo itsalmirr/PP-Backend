@@ -42,6 +42,7 @@ func SetupRouter(keys *config.Config, db *config.Database) *gin.Engine {
 		realtorRoutes := public.Group("/realtors")
 		{
 			realtorRoutes.GET("/:email", api.GetRealtor)
+			realtorRoutes.GET("/all", api.GetRealtors)
 			realtorRoutes.POST("/", api.CreateRealtor)
 		}
 		// Group of listings routes

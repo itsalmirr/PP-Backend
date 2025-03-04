@@ -69,3 +69,16 @@ func GetRealtorRepo(entClient *ent.Client, email string) (*ent.Realtor, error) {
 
 	return realtor, nil
 }
+
+func GetRealtorsRepo(entClient *ent.Client) ([]*ent.Realtor, error) {
+	ctx := context.Background()
+
+	// Get all realtors from database
+	realtors, err := entClient.Realtor.Query().All(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return realtors, nil
+}

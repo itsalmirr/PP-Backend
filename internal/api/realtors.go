@@ -55,7 +55,26 @@ func GetRealtor(c *gin.Context) {
 
 	realtor, err := repositories.GetRealtorRepo(entClient, email)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get realtor", "message": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to get realtor",
+			"message": err.Error(),
+		})
 	}
 	c.JSON(http.StatusOK, gin.H{"data": realtor})
+}
+
+func GetRealtors(c *gin.Context) {
+	entClient := c.MustGet("entClient").(*ent.Client)
+
+	realtors, err := repositories.GetRealtorsRepo(entClient)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to get realtors",
+			"message": err.Error(),
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": realtors,
+	})
 }
