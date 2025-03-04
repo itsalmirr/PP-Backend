@@ -63,6 +63,11 @@ func GetRealtor(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": realtor})
 }
 
+// GetRealtors handles HTTP requests to retrieve all realtors.
+// It extracts the ent.Client from the Gin context, queries the repository
+// for all realtors, and returns the result as JSON.
+// On success, it returns HTTP 200 with the realtors data.
+// On failure, it returns HTTP 500 with an error message.
 func GetRealtors(c *gin.Context) {
 	entClient := c.MustGet("entClient").(*ent.Client)
 
