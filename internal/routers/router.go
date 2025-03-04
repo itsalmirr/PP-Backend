@@ -1,8 +1,6 @@
 package routers
 
 import (
-	"fmt"
-
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -25,7 +23,6 @@ func SetupRouter(keys *config.Config, db *config.Database) *gin.Engine {
 	r.Use(cors.New(cors_config))
 	r.Use(sessions.Sessions("auth-session", config.SessionStorage(keys)), DatabaseMiddleware())
 	config.InitOAuth(keys)
-	fmt.Println("Here: " + keys.SessionKey)
 
 	// Public routes
 	r.GET("/auth/:provider", auth.AuthInit)
