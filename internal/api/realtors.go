@@ -80,6 +80,7 @@ func GetRealtors(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": realtors,
+		"status": "OK",
+		"data":   realtors,
 	})
 }
