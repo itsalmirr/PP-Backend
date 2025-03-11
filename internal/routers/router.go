@@ -16,11 +16,16 @@ func SetupRouter(keys *config.Config, db *config.Database) *gin.Engine {
 		c.Set("db", db)
 		c.Next()
 	})
+
+	// Configure CORS to allow cross-origin requests from client source
+	// with the listed HTTP methods and credentials
 	cors_config := cors.DefaultConfig()
 	cors_config.AllowOrigins = []string{"http://localhost:3000"}
 	cors_config.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}
 	cors_config.AllowCredentials = true
 	r.Use(cors.New(cors_config))
+
+	// Set redis session store
 	r.Use(sessions.Sessions("auth-session", config.SessionStorage(keys)), DatabaseMiddleware())
 	config.InitOAuth(keys)
 
@@ -41,16 +46,15 @@ func SetupRouter(keys *config.Config, db *config.Database) *gin.Engine {
 		{
 			realtorRoutes.GET("/:email", api.GetRealtor)
 			realtorRoutes.GET("/all", api.GetRealtors)
-			realtorRoutes.POST("/", api.CreateRealtor)
 		}
 		// Group of listings routes
 		listingRoutes := public.Group("/properties")
 		{
 			listingRoutes.GET("/buy", api.GetListings)
-			listingRoutes.POST("/", api.CreateListing)
 		}
 	}
 
+	// Private routes
 	private := r.Group("/api/v1")
 	private.Use(AuthMiddleware())
 	{
@@ -60,15 +64,15 @@ func SetupRouter(keys *config.Config, db *config.Database) *gin.Engine {
 			userRoutes.GET("/me", api.Dashboard)
 		}
 		// Group of realtor routes
-		// realtorRoutes := private.Group("/realtors")
-		// {
-		// 	realtorRoutes.POST("/", api.CreateRealtor)
-		// }
+		realtorRoutes := private.Group("/realtors")
+		{
+			realtorRoutes.POST("/", api.CreateRealtor)
+		}
 		// // Group of listing routes
-		// listingRoutes := private.Group("/properties")
-		// {
-		// 	listingRoutes.POST("/", api.CreateListing)
-		// }
+		listingRoutes := private.Group("/properties")
+		{
+			listingRoutes.POST("/", api.CreateListing)
+		}
 	}
 
 	return r
