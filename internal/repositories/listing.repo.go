@@ -173,7 +173,7 @@ func GetListingsRepo(entClient *ent.Client, params ListingQueryParams) ([]*ent.L
 
 	pageSize := params.PageSize
 	if pageSize <= 0 {
-		pageSize = 10
+		pageSize = 3
 	}
 
 	query = query.Limit(pageSize + 1)

@@ -46,11 +46,13 @@ func SetupRouter(keys *config.Config, db *config.Database) *gin.Engine {
 		{
 			realtorRoutes.GET("/:email", api.GetRealtor)
 			realtorRoutes.GET("/all", api.GetRealtors)
+			realtorRoutes.POST("/", api.CreateRealtor)
 		}
 		// Group of listings routes
 		listingRoutes := public.Group("/properties")
 		{
 			listingRoutes.GET("/buy", api.GetListings)
+			listingRoutes.POST("/", api.CreateListing)
 		}
 	}
 
@@ -64,15 +66,15 @@ func SetupRouter(keys *config.Config, db *config.Database) *gin.Engine {
 			userRoutes.GET("/me", api.Dashboard)
 		}
 		// Group of realtor routes
-		realtorRoutes := private.Group("/realtors")
+		// realtorRoutes := private.Group("/realtors")
 		{
-			realtorRoutes.POST("/", api.CreateRealtor)
+			// realtorRoutes.POST("/", api.CreateRealtor)
 		}
 		// // Group of listing routes
-		listingRoutes := private.Group("/properties")
-		{
-			listingRoutes.POST("/", api.CreateListing)
-		}
+		// listingRoutes := private.Group("/properties")
+		// {
+		// 	listingRoutes.POST("/", api.CreateListing)
+		// }
 	}
 
 	return r
