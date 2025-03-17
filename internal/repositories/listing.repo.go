@@ -233,3 +233,5 @@ func DeleteListing(entClient *ent.Client, idStr string) error {
 
 	return nil
 }
+
+// func UpdateListing()
