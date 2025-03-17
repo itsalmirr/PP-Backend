@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/alexedwards/argon2id"
@@ -37,8 +36,6 @@ func EmailSignIn(c *gin.Context) {
 	// Check if user exists
 	entClient := c.MustGet("entClient").(*ent.Client)
 	user, err := repositories.GetUserRepo(entClient, input.Email)
-	fmt.Printf("User password: %v\n", user.Password)
-	fmt.Print("Input password:" + input.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to get user",
