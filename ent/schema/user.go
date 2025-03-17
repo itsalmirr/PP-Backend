@@ -44,7 +44,6 @@ func (User) Fields() []ent.Field {
 		field.Time("start_date").Default(time.Now).Immutable(),
 		field.Bool("is_staff").Default(false),
 		field.Bool("is_active").Default(true),
-		field.Enum("role").Values("ADMIN", "CLIENT", "REALTOR").Default("CLIENT"),
 		field.String("password").MaxLen(128).NotEmpty().Sensitive(),
 		field.String("provider").Default("email"),
 		field.String("provider_id").Optional(),

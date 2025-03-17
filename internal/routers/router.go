@@ -51,8 +51,9 @@ func SetupRouter(keys *config.Config, db *config.Database) *gin.Engine {
 		// Group of listings routes
 		listingRoutes := public.Group("/properties")
 		{
+			listingRoutes.POST("/add", api.CreateListing)
+			listingRoutes.DELETE("/", api.DeleteListing)
 			listingRoutes.GET("/buy", api.GetListings)
-			listingRoutes.POST("/", api.CreateListing)
 		}
 	}
 

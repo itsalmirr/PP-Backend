@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -75,7 +76,7 @@ func CreateListingRepo(entClient *ent.Client, data *ent.Listing) error {
 		SetMedia(data.Media).
 		SetStatus(data.Status).
 		SetRealtorID(data.RealtorID).
-		Save(context.Background())
+		Save(ctx)
 
 	if err != nil {
 		tx.Rollback()
@@ -173,7 +174,7 @@ func GetListingsRepo(entClient *ent.Client, params ListingQueryParams) ([]*ent.L
 
 	pageSize := params.PageSize
 	if pageSize <= 0 {
-		pageSize = 3
+		pageSize = 10
 	}
 
 	query = query.Limit(pageSize + 1)
@@ -201,4 +202,30 @@ func GetListingsRepo(entClient *ent.Client, params ListingQueryParams) ([]*ent.L
 	}
 
 	return listings, meta, nil
+}
+
+// DeleteListing deletes a listing from the database using the provided ent.Client and Listing data.
+// It takes an ent.Client instance and a Listing entity as input parameters.
+// If the listing with the specified ID does not exist, it returns an error indicating "listing not found".
+// If any other error occurs during the deletion process, it wraps and returns the error.
+// On successful deletion, it returns nil.
+//
+// Parameters:
+// - entClient: The ent.Client instance used to interact with the database.
+// - data: The Listing entity containing the ID of the listing to be deleted.
+//
+// Returns:
+// - error: An error if the deletion fails or the listing is not found, otherwise nil.
+func DeleteListing(entClient *ent.Client, ID uuid.UUID) error {
+	ctx := context.Background()
+
+	err := entClient.Listing.DeleteOneID(ID).Exec(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return errors.New("listing not found")
+		}
+		return fmt.Errorf("failed to delete listing: %w", err)
+	}
+
+	return nil
 }

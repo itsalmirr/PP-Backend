@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"ppgroup.i0sys.com/ent"
 	"ppgroup.i0sys.com/internal/repositories"
 )
@@ -94,4 +95,37 @@ func GetListings(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response)
+}
+
+func DeleteListing(c *gin.Context) {
+	idStr := c.Query("ID")
+	if idStr == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Missing ID query parameter",
+		})
+		return
+	}
+	// Parse the ID as a UUID
+	listingID, err := uuid.Parse(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid ID format",
+		})
+		return
+	}
+
+	entClient := c.MustGet("entClient").(*ent.Client)
+	err = repositories.DeleteListing(entClient, listingID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to delete listing",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "OK",
+		"message": "Successfully deleted listing",
+	})
 }
