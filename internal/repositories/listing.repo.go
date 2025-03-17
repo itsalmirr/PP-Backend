@@ -216,10 +216,14 @@ func GetListingsRepo(entClient *ent.Client, params ListingQueryParams) ([]*ent.L
 //
 // Returns:
 // - error: An error if the deletion fails or the listing is not found, otherwise nil.
-func DeleteListing(entClient *ent.Client, ID uuid.UUID) error {
+func DeleteListing(entClient *ent.Client, idStr string) error {
 	ctx := context.Background()
+	ID, err := uuid.Parse(idStr)
+	if err != nil {
+		return errors.New("invalid ID format")
+	}
 
-	err := entClient.Listing.DeleteOneID(ID).Exec(ctx)
+	err = entClient.Listing.DeleteOneID(ID).Exec(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return errors.New("listing not found")
