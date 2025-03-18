@@ -96,6 +96,17 @@ func GetListings(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// DeleteListing handles the deletion of a listing based on the provided ID query parameter.
+//
+// @param c *gin.Context - The Gin context containing the HTTP request and response.
+//
+// The function performs the following steps:
+//  1. Retrieves the "ID" query parameter from the request. If the parameter is missing, it responds with
+//     a 400 Bad Request status and an error message.
+//  2. Retrieves the ent.Client instance from the context.
+//  3. Calls the repositories.DeleteListing function to delete the listing with the specified ID.
+//     If an error occurs during deletion, it responds with a 500 Internal Server Error status and the error message.
+//  4. If the deletion is successful, it responds with a 200 OK status and a success message.
 func DeleteListing(c *gin.Context) {
 	ID := c.Query("ID")
 	if ID == "" {
