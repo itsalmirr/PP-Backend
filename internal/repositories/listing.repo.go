@@ -234,4 +234,16 @@ func DeleteListing(entClient *ent.Client, idStr string) error {
 	return nil
 }
 
-// func UpdateListing()
+func UpdateListing(entClient *ent.Client, data *ent.Listing) error {
+	ctx := context.Background()
+
+	exists, err := entClient.Listing.Query().Where(listing.Or(listing.TitleEQ(data.Title), listing.AddressEQ(data.Address))).Exist(ctx)
+	if err != nil {
+		return err
+	}
+	if exists {
+		//
+	}
+
+	return nil
+}

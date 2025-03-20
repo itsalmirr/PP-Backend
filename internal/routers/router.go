@@ -80,3 +80,14 @@ func SetupRouter(keys *config.Config, db *config.Database) *gin.Engine {
 
 	return r
 }
+
+// func SetupGRPCServer(db *config.Database) {
+// 	lis, err := net.Listen("tcp", ":50051")
+// 	if err != nil {
+// 		log.Fatalf("failed to listen: %v", err)
+// 	}
+
+// 	s := grpc.NewServer()
+
+// 	proto.RegisterProfilingServer(s, &services.)
+// }

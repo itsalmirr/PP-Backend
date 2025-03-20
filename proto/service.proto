@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "ppgroup.i0sys.com/proto";
+
+service ListingService {
+    rpc GetListing(GetListingRequest) returns (ListingResponse) {}
+}
