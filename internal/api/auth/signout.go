@@ -9,9 +9,16 @@ import (
 
 func SignOut(c *gin.Context) {
 	session := sessions.Default(c)
-	session.Delete("userEmail")
-	session.Delete("authProvider")
-	session.Delete("auth-session")
 
-	c.Redirect(http.StatusForbidden, "/")
+	session.Clear()
+	c.SetCookie(session.ID(), "", -1, "/", "", false, true)
+
+	if err := session.Save(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to save session",
+		})
+		return
+	}
+
+	c.Redirect(http.StatusFound, "/")
 }

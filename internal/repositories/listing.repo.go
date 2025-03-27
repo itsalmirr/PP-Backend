@@ -114,6 +114,7 @@ func GetListingsRepo(entClient *ent.Client, params ListingQueryParams) ([]*ent.L
 	ctx := context.Background()
 
 	query := entClient.Listing.Query()
+	query = query.WithRealtor()
 
 	if params.City != "" {
 		query = query.Where(listing.CityEQ(params.City))
