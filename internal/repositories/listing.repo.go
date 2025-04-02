@@ -235,15 +235,59 @@ func DeleteListing(entClient *ent.Client, idStr string) error {
 	return nil
 }
 
-func UpdateListing(entClient *ent.Client, data *ent.Listing) error {
+// UpdateListingRepo updates an existing listing in the database with new data.
+// It checks if a listing with the given title or address already exists for the provided ID,
+// and returns an error if such a duplicate is found.
+// If no duplicate exists, it updates the listing identified by the provided listing ID using the data given.
+//
+// Parameters:
+//   - entClient: The ent.Client instance for database operations.
+//   - data: A pointer to an ent.Listing containing the updated listing data. Must include a valid ID.
+//
+// Returns:
+//   - error: An error if the update fails or if a duplicate listing exists, otherwise nil.
+func UpdateListingRepo(entClient *ent.Client, data *ent.Listing) error {
 	ctx := context.Background()
 
-	exists, err := entClient.Listing.Query().Where(listing.Or(listing.TitleEQ(data.Title), listing.AddressEQ(data.Address))).Exist(ctx)
+	duplicate, err := entClient.Listing.Query().
+		Where(
+			listing.Or(
+				listing.TitleEQ(data.Title),
+				listing.AddressEQ(data.Address),
+			),
+			listing.IDEQ(data.ID),
+		).Exist(ctx)
 	if err != nil {
 		return err
 	}
-	if exists {
-		//
+
+	if duplicate {
+		return errors.New("another listing with the given title or address already exists")
+	}
+
+	_, err = entClient.Listing.UpdateOneID(data.ID).
+		SetTitle(data.Title).
+		SetAddress(data.Address).
+		SetCity(data.City).
+		SetState(data.State).
+		SetZipCode(data.ZipCode).
+		SetDescription(data.Description).
+		SetPrice(data.Price).
+		SetBedroom(data.Bedroom).
+		SetBathroom(data.Bathroom).
+		SetGarage(data.Garage).
+		SetSqft(data.Sqft).
+		SetTypeOfProperty(data.TypeOfProperty).
+		SetLotSize(data.LotSize).
+		SetPool(data.Pool).
+		SetYearBuilt(data.YearBuilt).
+		SetMedia(data.Media).
+		SetStatus(data.Status).
+		SetRealtorID(data.RealtorID).
+		Save(ctx)
+
+	if err != nil {
+		return err
 	}
 
 	return nil

@@ -131,3 +131,32 @@ func DeleteListing(c *gin.Context) {
 		"message": "Successfully deleted listing",
 	})
 }
+
+// UpdateListing handles the updating of an existing listing.
+// @Summary Update an existing listing
+// @Description Update an existing listing with the provided input data
+// @Tags listings
+// @Accept json
+// @Produce json
+// @Param input body ent.Listing true "Listing update data"
+// @Success 200 {object} gin.H{"status": "OK", "message": "Listing updated!"}
+// @Failure 400 {object} gin.H{"error": "Invalid input", "message": "Please provide required fields"}
+// @Failure 500 {object} gin.H{"error": "Failed to update listing", "message": "Error message"}
+// @Router /listings [put]
+func UpdateListing(c *gin.Context) {
+	var input *ent.Listing
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input", "message": "Please provide required fields: " + err.Error()})
+		return
+	}
+
+	entClient := c.MustGet("entClient").(*ent.Client)
+
+	err := repositories.UpdateListingRepo(entClient, input)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update listing", "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "OK", "message": "Listing updated!"})
+}
