@@ -235,57 +235,90 @@ func DeleteListing(entClient *ent.Client, idStr string) error {
 	return nil
 }
 
-// UpdateListingRepo updates an existing listing in the database with new data.
-// It checks if a listing with the given title or address already exists for the provided ID,
-// and returns an error if such a duplicate is found.
-// If no duplicate exists, it updates the listing identified by the provided listing ID using the data given.
-//
-// Parameters:
-//   - entClient: The ent.Client instance for database operations.
-//   - data: A pointer to an ent.Listing containing the updated listing data. Must include a valid ID.
-//
-// Returns:
-//   - error: An error if the update fails or if a duplicate listing exists, otherwise nil.
 func UpdateListingRepo(entClient *ent.Client, data *ent.Listing) error {
 	ctx := context.Background()
 
-	duplicate, err := entClient.Listing.Query().
-		Where(
-			listing.Or(
-				listing.TitleEQ(data.Title),
-				listing.AddressEQ(data.Address),
-			),
-			listing.IDEQ(data.ID),
-		).Exist(ctx)
+	// Fetch the current listing from the database
+	current, err := entClient.Listing.Get(ctx, data.ID)
 	if err != nil {
 		return err
 	}
 
-	if duplicate {
-		return errors.New("another listing with the given title or address already exists")
+	// Check for duplicate title or address if they are changed
+	if data.Title != current.Title || data.Address != current.Address {
+		duplicate, err := entClient.Listing.Query().
+			Where(
+				listing.Or(
+					listing.TitleEQ(data.Title),
+					listing.AddressEQ(data.Address),
+				),
+				listing.IDNEQ(data.ID),
+			).
+			Exist(ctx)
+		if err != nil {
+			return err
+		}
+		if duplicate {
+			return errors.New("another listing with the given title or address already exists")
+		}
 	}
 
-	_, err = entClient.Listing.UpdateOneID(data.ID).
-		SetTitle(data.Title).
-		SetAddress(data.Address).
-		SetCity(data.City).
-		SetState(data.State).
-		SetZipCode(data.ZipCode).
-		SetDescription(data.Description).
-		SetPrice(data.Price).
-		SetBedroom(data.Bedroom).
-		SetBathroom(data.Bathroom).
-		SetGarage(data.Garage).
-		SetSqft(data.Sqft).
-		SetTypeOfProperty(data.TypeOfProperty).
-		SetLotSize(data.LotSize).
-		SetPool(data.Pool).
-		SetYearBuilt(data.YearBuilt).
-		SetMedia(data.Media).
-		SetStatus(data.Status).
-		SetRealtorID(data.RealtorID).
-		Save(ctx)
+	// Begin building the update, only setting fields that have changed
+	updater := entClient.Listing.UpdateOneID(data.ID)
 
+	if data.Title != current.Title {
+		updater = updater.SetTitle(data.Title)
+	}
+	if data.Address != current.Address {
+		updater = updater.SetAddress(data.Address)
+	}
+	if data.City != current.City {
+		updater = updater.SetCity(data.City)
+	}
+	if data.State != current.State {
+		updater = updater.SetState(data.State)
+	}
+	if data.ZipCode != current.ZipCode {
+		updater = updater.SetZipCode(data.ZipCode)
+	}
+	if data.Description != current.Description {
+		updater = updater.SetDescription(data.Description)
+	}
+	if !data.Price.Equal(current.Price) {
+		updater = updater.SetPrice(data.Price)
+	}
+	if data.Bedroom != current.Bedroom {
+		updater = updater.SetBedroom(data.Bedroom)
+	}
+	if data.Bathroom != current.Bathroom {
+		updater = updater.SetBathroom(data.Bathroom)
+	}
+	if data.Garage != current.Garage {
+		updater = updater.SetGarage(data.Garage)
+	}
+	if data.Sqft != current.Sqft {
+		updater = updater.SetSqft(data.Sqft)
+	}
+	if data.TypeOfProperty != current.TypeOfProperty {
+		updater = updater.SetTypeOfProperty(data.TypeOfProperty)
+	}
+	if data.LotSize != current.LotSize {
+		updater = updater.SetLotSize(data.LotSize)
+	}
+	if data.Pool != current.Pool {
+		updater = updater.SetPool(data.Pool)
+	}
+	if data.YearBuilt != current.YearBuilt {
+		updater = updater.SetYearBuilt(data.YearBuilt)
+	}
+	if data.Status != current.Status {
+		updater = updater.SetStatus(data.Status)
+	}
+	if data.RealtorID != current.RealtorID {
+		updater = updater.SetRealtorID(data.RealtorID)
+	}
+
+	_, err = updater.Save(ctx)
 	if err != nil {
 		return err
 	}
