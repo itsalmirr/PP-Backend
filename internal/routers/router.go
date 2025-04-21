@@ -54,6 +54,7 @@ func SetupRouter(keys *config.Config, db *config.Database) *gin.Engine {
 			listingRoutes.POST("/add", api.CreateListing)
 			listingRoutes.DELETE("/", api.DeleteListing)
 			listingRoutes.GET("/buy", api.GetListings)
+			listingRoutes.PATCH("/update", api.UpdateListing)
 		}
 	}
 

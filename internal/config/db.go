@@ -113,6 +113,7 @@ func SessionStorage(cfg *Config) redis.Store {
 		"tcp",
 		cfg.RedisURL,
 		"",
+		"",
 		key,
 		key,
 	)
