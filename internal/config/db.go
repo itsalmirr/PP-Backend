@@ -16,7 +16,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
 
-	"ppgroup.i0sys.com/ent"
+	"ppgroup.m0chi.com/ent"
 )
 
 type Database struct {

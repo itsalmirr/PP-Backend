@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"ppgroup.i0sys.com/ent/realtor"
+	"ppgroup.m0chi.com/ent/realtor"
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"

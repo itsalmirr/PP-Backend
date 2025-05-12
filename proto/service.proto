@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package proto;
 
-option go_package = "ppgroup.i0sys.com/proto";
+option go_package = "ppgroup.m0chi.com/proto";
 
 service ListingService {
     rpc GetListing(GetListingRequest) returns (ListingResponse) {}

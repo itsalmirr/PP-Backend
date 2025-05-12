@@ -9,12 +9,12 @@ import (
 	"log"
 	"reflect"
 
-	"ppgroup.i0sys.com/ent/migrate"
+	"ppgroup.m0chi.com/ent/migrate"
 	"github.com/google/uuid"
 
-	"ppgroup.i0sys.com/ent/listing"
-	"ppgroup.i0sys.com/ent/realtor"
-	"ppgroup.i0sys.com/ent/user"
+	"ppgroup.m0chi.com/ent/listing"
+	"ppgroup.m0chi.com/ent/realtor"
+	"ppgroup.m0chi.com/ent/user"
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"

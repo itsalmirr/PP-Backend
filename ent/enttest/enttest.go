@@ -5,11 +5,11 @@ package enttest
 import (
 	"context"
 
-	"ppgroup.i0sys.com/ent"
+	"ppgroup.m0chi.com/ent"
 	// required by schema hooks.
-	_ "ppgroup.i0sys.com/ent/runtime"
+	_ "ppgroup.m0chi.com/ent/runtime"
 
-	"ppgroup.i0sys.com/ent/migrate"
+	"ppgroup.m0chi.com/ent/migrate"
 	"entgo.io/ent/dialect/sql/schema"
 )
 

@@ -5,8 +5,8 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"ppgroup.i0sys.com/ent"
-	"ppgroup.i0sys.com/internal/repositories"
+	"ppgroup.m0chi.com/ent"
+	"ppgroup.m0chi.com/internal/repositories"
 )
 
 // CreateUser handles the creation of a new user.

@@ -5,7 +5,7 @@ package user
 import (
 	"time"
 
-	"ppgroup.i0sys.com/ent/predicate"
+	"ppgroup.m0chi.com/ent/predicate"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 )

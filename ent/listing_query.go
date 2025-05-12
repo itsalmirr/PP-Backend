@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"math"
 
-	"ppgroup.i0sys.com/ent/listing"
-	"ppgroup.i0sys.com/ent/predicate"
-	"ppgroup.i0sys.com/ent/realtor"
+	"ppgroup.m0chi.com/ent/listing"
+	"ppgroup.m0chi.com/ent/predicate"
+	"ppgroup.m0chi.com/ent/realtor"
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

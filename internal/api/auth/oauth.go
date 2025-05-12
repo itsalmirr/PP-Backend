@@ -8,9 +8,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/markbates/goth/gothic"
 	"golang.org/x/net/context"
-	"ppgroup.i0sys.com/ent"
-	"ppgroup.i0sys.com/ent/user"
-	"ppgroup.i0sys.com/internal/config"
+	"ppgroup.m0chi.com/ent"
+	"ppgroup.m0chi.com/ent/user"
+	"ppgroup.m0chi.com/internal/config"
 )
 
 func AuthInit(c *gin.Context) {

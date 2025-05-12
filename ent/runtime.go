@@ -5,10 +5,10 @@ package ent
 import (
 	"time"
 
-	"ppgroup.i0sys.com/ent/listing"
-	"ppgroup.i0sys.com/ent/realtor"
-	"ppgroup.i0sys.com/ent/schema"
-	"ppgroup.i0sys.com/ent/user"
+	"ppgroup.m0chi.com/ent/listing"
+	"ppgroup.m0chi.com/ent/realtor"
+	"ppgroup.m0chi.com/ent/schema"
+	"ppgroup.m0chi.com/ent/user"
 	"github.com/google/uuid"
 )
 

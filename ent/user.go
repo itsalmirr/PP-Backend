@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"ppgroup.i0sys.com/ent/user"
+	"ppgroup.m0chi.com/ent/user"
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"

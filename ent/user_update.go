@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"time"
 
-	"ppgroup.i0sys.com/ent/predicate"
-	"ppgroup.i0sys.com/ent/user"
+	"ppgroup.m0chi.com/ent/predicate"
+	"ppgroup.m0chi.com/ent/user"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"

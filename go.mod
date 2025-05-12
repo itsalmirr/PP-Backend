@@ -1,6 +1,6 @@
-module ppgroup.i0sys.com
+module ppgroup.m0chi.com
 
-go 1.24.0
+go 1.24.3
 
 require (
 	entgo.io/ent v0.14.4

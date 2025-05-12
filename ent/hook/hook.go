@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"ppgroup.i0sys.com/ent"
+	"ppgroup.m0chi.com/ent"
 )
 
 // The ListingFunc type is an adapter to allow the use of ordinary

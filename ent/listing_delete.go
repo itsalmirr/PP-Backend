@@ -5,8 +5,8 @@ package ent
 import (
 	"context"
 
-	"ppgroup.i0sys.com/ent/listing"
-	"ppgroup.i0sys.com/ent/predicate"
+	"ppgroup.m0chi.com/ent/listing"
+	"ppgroup.m0chi.com/ent/predicate"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"

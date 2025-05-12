@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"ppgroup.i0sys.com/ent"
-	"ppgroup.i0sys.com/ent/realtor"
+	"ppgroup.m0chi.com/ent"
+	"ppgroup.m0chi.com/ent/realtor"
 )
 
 // CreateRealtorRepository creates a new realtor record in the database.

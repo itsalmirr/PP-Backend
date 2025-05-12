@@ -5,8 +5,8 @@ import (
 	"errors"
 
 	"github.com/alexedwards/argon2id"
-	"ppgroup.i0sys.com/ent"
-	"ppgroup.i0sys.com/ent/user"
+	"ppgroup.m0chi.com/ent"
+	"ppgroup.m0chi.com/ent/user"
 )
 
 // CreateUserRepository creates a new user in the database.

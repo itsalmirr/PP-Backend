@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"time"
 
-	"ppgroup.i0sys.com/ent/listing"
-	"ppgroup.i0sys.com/ent/realtor"
+	"ppgroup.m0chi.com/ent/listing"
+	"ppgroup.m0chi.com/ent/realtor"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"

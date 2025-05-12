@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"time"
 
-	"ppgroup.i0sys.com/ent/user"
+	"ppgroup.m0chi.com/ent/user"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
