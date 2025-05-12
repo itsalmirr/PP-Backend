@@ -1,4 +1,4 @@
-FROM golang:1.24-alpine
+FROM golang:1.24.3-alpine
 
 # Install CompileDaemon for live reloading
 RUN go install github.com/githubnemo/CompileDaemon@latest
@@ -31,6 +31,6 @@ ENTRYPOINT ["CompileDaemon", "--build=go build -o main ./cmd", "--command=./main
 # FROM alpine:latest
 # WORKDIR /app
 # COPY --from=builder /app/main .
-# COPY .env . 
+# COPY .env .
 # EXPOSE 8080
 # CMD ["./main"]

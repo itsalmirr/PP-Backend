@@ -1,6 +1,6 @@
 module ppgroup.m0chi.com
 
-go 1.24.3
+go 1.24.2
 
 require (
 	entgo.io/ent v0.14.4
