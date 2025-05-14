@@ -17,10 +17,10 @@ require (
 	golang.org/x/net v0.40.0
 )
 
-require cloud.google.com/go/compute/metadata v0.6.0 // indirect
+require cloud.google.com/go/compute/metadata v0.7.0 // indirect
 
 require (
-	ariga.io/atlas v0.32.1 // indirect
+	ariga.io/atlas v0.33.0 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/bmatcuk/doublestar v1.3.4 // indirect
