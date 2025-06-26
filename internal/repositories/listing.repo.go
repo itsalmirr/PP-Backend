@@ -91,7 +91,7 @@ func CreateListingRepo(entClient *ent.Client, data *ent.Listing) error {
 	return nil
 }
 
-// GetListingsRepository retrieves a paginated list of listings with optional filtering and sorting.
+// GetListingsRepo retrieves a paginated list of listings with optional filtering and sorting.
 //
 // It fetches listings from the database according to the provided query parameters, supporting
 // filtering by city and minimum price. The function implements cursor-based pagination and

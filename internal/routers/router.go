@@ -19,11 +19,11 @@ func SetupRouter(keys *config.Config, db *config.Database) *gin.Engine {
 
 	// Configure CORS to allow cross-origin requests from client source
 	// with the listed HTTP methods and credentials
-	cors_config := cors.DefaultConfig()
-	cors_config.AllowOrigins = []string{"http://localhost:3000"}
-	cors_config.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}
-	cors_config.AllowCredentials = true
-	r.Use(cors.New(cors_config))
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowOrigins = []string{"http://localhost:3000"}
+	corsConfig.AllowMethods = []string{"GET", "POST", "PATCH", "DELETE"}
+	corsConfig.AllowCredentials = true
+	r.Use(cors.New(corsConfig))
 
 	// Set redis session store
 	r.Use(sessions.Sessions("auth-session", config.SessionStorage(keys)), DatabaseMiddleware())
