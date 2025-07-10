@@ -21,7 +21,10 @@ func AuthInit(c *gin.Context) {
 
 	session := sessions.Default(c)
 	session.Set("oauth_redirect", "http://localhost:3000")
-	session.Save()
+	err := session.Save()
+	if err != nil {
+		return
+	}
 
 	authUrl, err := gothic.GetAuthURL(c.Writer, c.Request)
 	if err != nil {
@@ -82,7 +85,10 @@ func AuthCallback(c *gin.Context) {
 	// Redirect to the original URL or the user profile page
 	if redirectURL := session.Get("oauth_redirect"); redirectURL != nil {
 		session.Delete("oauth_redirect")
-		session.Save()
+		err := session.Save()
+		if err != nil {
+			return
+		}
 		c.Redirect(http.StatusSeeOther, redirectURL.(string))
 	} else {
 		c.Redirect(http.StatusFound, "http://localhost:3000")
