@@ -9,9 +9,8 @@ import (
 
 func SignOut(c *gin.Context) {
 	session := sessions.Default(c)
-
 	session.Clear()
-	c.SetCookie(session.ID(), "", -1, "/", "", false, true)
+	session.Options(sessions.Options{MaxAge: -1}) // expire cookie immediately
 
 	if err := session.Save(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -20,5 +19,7 @@ func SignOut(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(http.StatusFound, "/")
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Logged out",
+	})
 }

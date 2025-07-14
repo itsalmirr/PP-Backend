@@ -32,7 +32,7 @@ func SetupRouter(keys *config.Config, db *config.Database) *gin.Engine {
 	// Public routes
 	r.GET("/auth/:provider", auth.AuthInit)
 	r.GET("/auth/:provider/callback", auth.AuthCallback)
-	r.GET("/auth/signout", auth.SignOut)
+	r.POST("/auth/signout", auth.SignOut)
 	public := r.Group("/api/v1")
 	{
 		// Group of user routes
