@@ -35,7 +35,6 @@ func CreateListing(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create listing, please check your input", "message": err.Error()})
 		return
 	}
-
 	c.JSON(http.StatusCreated, gin.H{"status": "OK", "message": "Listing created!"})
 }
 
@@ -92,7 +91,6 @@ func GetListings(c *gin.Context) {
 			"page_size":   params.PageSize,
 		},
 	}
-
 	c.JSON(http.StatusOK, response)
 }
 
