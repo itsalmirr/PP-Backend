@@ -5,5 +5,8 @@ func main() {
 	// Set up the server
 	server := Server()
 	// Run the server
-	server.Run(":8080")
+	err := server.Run(":8080")
+	if err != nil {
+		println("Failed to run server: " + err.Error())
+	}
 }
