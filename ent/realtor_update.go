@@ -8,13 +8,13 @@ import (
 	"fmt"
 	"time"
 
-	"ppgroup.m0chi.com/ent/listing"
-	"ppgroup.m0chi.com/ent/predicate"
-	"ppgroup.m0chi.com/ent/realtor"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"ppgroup.m0chi.com/ent/listing"
+	"ppgroup.m0chi.com/ent/predicate"
+	"ppgroup.m0chi.com/ent/realtor"
 )
 
 // RealtorUpdate is the builder for updating Realtor entities.

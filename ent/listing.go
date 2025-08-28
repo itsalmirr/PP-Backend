@@ -8,13 +8,13 @@ import (
 	"strings"
 	"time"
 
-	"ppgroup.m0chi.com/ent/listing"
-	"ppgroup.m0chi.com/ent/realtor"
-	"ppgroup.m0chi.com/ent/schema"
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
+	"ppgroup.m0chi.com/ent/listing"
+	"ppgroup.m0chi.com/ent/realtor"
+	"ppgroup.m0chi.com/ent/schema"
 )
 
 // Listing is the model entity for the Listing schema.

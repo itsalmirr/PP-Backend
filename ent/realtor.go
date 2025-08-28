@@ -8,10 +8,10 @@ import (
 	"strings"
 	"time"
 
-	"ppgroup.m0chi.com/ent/realtor"
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
+	"ppgroup.m0chi.com/ent/realtor"
 )
 
 // Realtor is the model entity for the Realtor schema.

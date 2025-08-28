@@ -8,13 +8,13 @@ import (
 	"fmt"
 	"time"
 
-	"ppgroup.m0chi.com/ent/listing"
-	"ppgroup.m0chi.com/ent/realtor"
-	"ppgroup.m0chi.com/ent/schema"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
+	"ppgroup.m0chi.com/ent/listing"
+	"ppgroup.m0chi.com/ent/realtor"
+	"ppgroup.m0chi.com/ent/schema"
 )
 
 // ListingCreate is the builder for creating a Listing entity.

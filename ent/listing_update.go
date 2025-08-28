@@ -8,16 +8,16 @@ import (
 	"fmt"
 	"time"
 
-	"ppgroup.m0chi.com/ent/listing"
-	"ppgroup.m0chi.com/ent/predicate"
-	"ppgroup.m0chi.com/ent/realtor"
-	"ppgroup.m0chi.com/ent/schema"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
+	"ppgroup.m0chi.com/ent/listing"
+	"ppgroup.m0chi.com/ent/predicate"
+	"ppgroup.m0chi.com/ent/realtor"
+	"ppgroup.m0chi.com/ent/schema"
 )
 
 // ListingUpdate is the builder for updating Listing entities.

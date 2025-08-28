@@ -5,9 +5,9 @@ package user
 import (
 	"time"
 
-	"ppgroup.m0chi.com/ent/predicate"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
+	"ppgroup.m0chi.com/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.

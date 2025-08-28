@@ -9,16 +9,16 @@ import (
 	"log"
 	"reflect"
 
-	"ppgroup.m0chi.com/ent/migrate"
 	"github.com/google/uuid"
+	"ppgroup.m0chi.com/ent/migrate"
 
-	"ppgroup.m0chi.com/ent/listing"
-	"ppgroup.m0chi.com/ent/realtor"
-	"ppgroup.m0chi.com/ent/user"
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"ppgroup.m0chi.com/ent/listing"
+	"ppgroup.m0chi.com/ent/realtor"
+	"ppgroup.m0chi.com/ent/user"
 )
 
 // Client is the client that holds all ent builders.

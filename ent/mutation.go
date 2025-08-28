@@ -9,15 +9,15 @@ import (
 	"sync"
 	"time"
 
+	"entgo.io/ent"
+	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"ppgroup.m0chi.com/ent/listing"
 	"ppgroup.m0chi.com/ent/predicate"
 	"ppgroup.m0chi.com/ent/realtor"
 	"ppgroup.m0chi.com/ent/schema"
 	"ppgroup.m0chi.com/ent/user"
-	"entgo.io/ent"
-	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
-	"github.com/shopspring/decimal"
 )
 
 const (

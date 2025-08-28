@@ -8,11 +8,11 @@ import (
 	"fmt"
 	"time"
 
-	"ppgroup.m0chi.com/ent/predicate"
-	"ppgroup.m0chi.com/ent/user"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"ppgroup.m0chi.com/ent/predicate"
+	"ppgroup.m0chi.com/ent/user"
 )
 
 // UserUpdate is the builder for updating User entities.

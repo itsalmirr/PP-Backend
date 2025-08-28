@@ -7,14 +7,14 @@ import (
 	"fmt"
 	"math"
 
-	"ppgroup.m0chi.com/ent/listing"
-	"ppgroup.m0chi.com/ent/predicate"
-	"ppgroup.m0chi.com/ent/realtor"
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"ppgroup.m0chi.com/ent/listing"
+	"ppgroup.m0chi.com/ent/predicate"
+	"ppgroup.m0chi.com/ent/realtor"
 )
 
 // ListingQuery is the builder for querying Listing entities.

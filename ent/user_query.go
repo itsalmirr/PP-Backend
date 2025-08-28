@@ -7,13 +7,13 @@ import (
 	"fmt"
 	"math"
 
-	"ppgroup.m0chi.com/ent/predicate"
-	"ppgroup.m0chi.com/ent/user"
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"ppgroup.m0chi.com/ent/predicate"
+	"ppgroup.m0chi.com/ent/user"
 )
 
 // UserQuery is the builder for querying User entities.

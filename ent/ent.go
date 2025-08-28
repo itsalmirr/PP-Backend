@@ -9,12 +9,12 @@ import (
 	"reflect"
 	"sync"
 
-	"ppgroup.m0chi.com/ent/listing"
-	"ppgroup.m0chi.com/ent/realtor"
-	"ppgroup.m0chi.com/ent/user"
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"ppgroup.m0chi.com/ent/listing"
+	"ppgroup.m0chi.com/ent/realtor"
+	"ppgroup.m0chi.com/ent/user"
 )
 
 // ent aliases to avoid import conflicts in user's code.
