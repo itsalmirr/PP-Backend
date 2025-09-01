@@ -26,7 +26,9 @@ func SetupRouter(keys *config.Config, db *config.Database) *gin.Engine {
 	r.Use(cors.New(corsConfig))
 
 	// Set redis session store
-	r.Use(sessions.Sessions("auth-session", config.SessionStorage(keys)), DatabaseMiddleware())
+	r.Use(sessions.Sessions("auth-session", config.SessionStorage(keys)))
+	// Apply database middleware to make entClient available in all routes
+	r.Use(DatabaseMiddleware())
 	config.InitOAuth(keys)
 
 	// Public routes

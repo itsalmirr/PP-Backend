@@ -21,8 +21,8 @@ import (
 // @Failure 500 {object} map[string]interface{} "error: Failed to create user, message: error message"
 // @Router /users [post]
 func CreateUser(c *gin.Context) {
-	var input *ent.User
-	if err := c.ShouldBind(&input); err != nil {
+	var input repositories.CreateUserInput
+	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Invalid input",
 			"message": "Please provide required fields",
@@ -31,7 +31,7 @@ func CreateUser(c *gin.Context) {
 	}
 
 	entClient := c.MustGet("entClient").(*ent.Client)
-	err := repositories.CreateUserRepo(entClient, input)
+	err := repositories.CreateUserRepo(entClient, &input)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to create user",

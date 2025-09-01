@@ -14,8 +14,8 @@ func AuthMiddleware() gin.HandlerFunc {
 		session := sessions.Default(c)
 		email := session.Get("userEmail")
 
-		if strings.HasPrefix(c.Request.URL.Path, "/auth/") {
-			provider := strings.TrimPrefix(c.Request.URL.Path, "/auth/")
+		if after, ok := strings.CutPrefix(c.Request.URL.Path, "/auth/"); ok {
+			provider := after
 			provider = strings.Split(provider, "/")[0]
 
 			q := c.Request.URL.Query()

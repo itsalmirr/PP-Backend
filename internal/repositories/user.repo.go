@@ -9,6 +9,15 @@ import (
 	"ppgroup.m0chi.com/ent/user"
 )
 
+// CreateUserInput represents the input data for creating a new user
+type CreateUserInput struct {
+	Email    string `json:"email" binding:"required,email"`
+	Username string `json:"username" binding:"required,min=3"`
+	FullName string `json:"full_name" binding:"required"`
+	Password string `json:"password" binding:"required,min=6"` // Plain text password - will be hashed
+	Avatar   string `json:"avatar,omitempty"`
+}
+
 // CreateUserRepository creates a new user in the database.
 // It first checks if a user with the given email or username already exists.
 // If such a user exists, it returns an error.
@@ -19,7 +28,7 @@ import (
 //
 // Returns:
 //   - error: An error if the user already exists, if password hashing fails, or if the user creation fails.
-func CreateUserRepo(entClient *ent.Client, data *ent.User) error {
+func CreateUserRepo(entClient *ent.Client, data *CreateUserInput) error {
 	ctx := context.Background()
 
 	exists, err := entClient.User.Query().Where(user.Or(user.EmailEQ(data.Email), user.UsernameEQ(data.Username))).Exist(ctx)
@@ -43,17 +52,20 @@ func CreateUserRepo(entClient *ent.Client, data *ent.User) error {
 		return err
 	}
 
+	// For email-based users, use email as provider_id to ensure uniqueness
+	providerToUse := "email"
+	providerIDToUse := data.Email // Use email as provider_id for email users
+
 	_, err = tx.User.Create().
 		SetAvatar(data.Avatar).
 		SetEmail(data.Email).
 		SetUsername(data.Username).
 		SetFullName(data.FullName).
 		SetPassword(hashedPassword).
-		SetStartDate(data.StartDate).
-		SetIsStaff(data.IsStaff).
-		SetIsActive(data.IsActive).
-		SetProvider(data.Provider).
-		SetProviderID(data.ProviderID).
+		SetIsStaff(false).
+		SetIsActive(true).
+		SetProvider(providerToUse).
+		SetProviderID(providerIDToUse).
 		Save(context.Background())
 	if err != nil {
 		tx.Rollback()
