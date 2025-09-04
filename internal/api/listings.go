@@ -23,11 +23,11 @@ type ListingQueryParams = repositories.ListingQueryParams
 // @Tags listings
 // @Accept multipart/form-data
 // @Produce json
-// @Param title formData string true "Listing title"
-// @Param address formData string true "Property address"
+// @Param title formData string true "Listing title (10-120 chars)"
+// @Param address formData string true "Property address (unique)"
 // @Param city formData string true "City"
-// @Param state formData string true "State (2 letters)"
-// @Param zip_code formData string true "ZIP code"
+// @Param state formData string true "State (2 letters, e.g., CA)"
+// @Param zip_code formData string true "ZIP code (5 digits)"
 // @Param description formData string false "Property description"
 // @Param price formData number true "Property price"
 // @Param bedroom formData int true "Number of bedrooms"
@@ -39,11 +39,11 @@ type ListingQueryParams = repositories.ListingQueryParams
 // @Param pool formData bool false "Has pool"
 // @Param year_built formData int true "Year built"
 // @Param realtor_id formData string true "Realtor UUID"
-// @Param images formData file false "Property images (multiple files allowed)"
+// @Param images formData file false "Property images (multiple files allowed, formats: jpg, jpeg, png, gif, webp)"
 // @Success 201 {object} gin.H{"status": "OK", "message": "Listing created!", "data": object}
 // @Failure 400 {object} gin.H{"error": "Invalid input", "message": string}
 // @Failure 500 {object} gin.H{"error": "Failed to create listing", "message": string}
-// @Router /properties/add [post]
+// @Router /api/v1/properties/add [post]
 func CreateListing(c *gin.Context) {
 	// Parse multipart form
 	err := c.Request.ParseMultipartForm(32 << 20) // 32 MB max
@@ -163,18 +163,11 @@ func CreateListing(c *gin.Context) {
 	var mediaItems []schema.Media
 	imageService := c.MustGet("imageService").(*services.ImageService)
 
-	// Debug: Check if multipart form was parsed
-	if c.Request.MultipartForm == nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Multipart form not parsed"})
-		return
-	}
-
-	// Debug: Check what files are available
+	// Get uploaded files
 	files := c.Request.MultipartForm.File["images"]
 
-	// If no files with "images" key, try other common variations
+	// If no files with "images" key, try singular "image"
 	if len(files) == 0 {
-		// Try singular "image"
 		files = c.Request.MultipartForm.File["image"]
 	}
 

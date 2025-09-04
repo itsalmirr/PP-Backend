@@ -46,13 +46,8 @@ func (s *ImageService) UploadImage(ctx context.Context, file multipart.File, fil
 		return "", fmt.Errorf("failed to upload image to cloudinary: %w", err)
 	}
 
-	// Debug: Check what we got back from Cloudinary
-	if result == nil {
-		return "", fmt.Errorf("cloudinary returned nil result")
-	}
-
-	if result.SecureURL == "" {
-		return "", fmt.Errorf("cloudinary returned empty SecureURL, PublicID: %s, result: %+v", publicID, result)
+	if result == nil || result.SecureURL == "" {
+		return "", fmt.Errorf("cloudinary upload failed: invalid response")
 	}
 
 	return result.SecureURL, nil
