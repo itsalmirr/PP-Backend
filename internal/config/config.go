@@ -3,37 +3,43 @@ package config
 import "os"
 
 type Config struct {
-	DBHost            string
-	DBUser            string
-	DBPassword        string
-	DBName            string
-	DBPort            string
-	GoogleClientID    string
-	GoogleSecret      string
-	GoogleCallbackURL string
-	GitHubClientID    string
-	GitHubSecret      string
-	GitHubCallbackURL string
-	RedisURL          string
-	SessionKey        string
+	DBHost              string
+	DBUser              string
+	DBPassword          string
+	DBName              string
+	DBPort              string
+	GoogleClientID      string
+	GoogleSecret        string
+	GoogleCallbackURL   string
+	GitHubClientID      string
+	GitHubSecret        string
+	GitHubCallbackURL   string
+	RedisURL            string
+	SessionKey          string
+	CloudinaryCloudName string
+	CloudinaryAPIKey    string
+	CloudinaryAPISecret string
 	// SessionSecret     string
 }
 
 func LoadConfig() *Config {
 	return &Config{
-		DBHost:            getEnv("DB_HOST"),
-		DBUser:            getEnv("DB_USER"),
-		DBPassword:        getEnv("DB_PASSWORD"),
-		DBName:            getEnv("DB_NAME"),
-		DBPort:            getEnv("DB_PORT"),
-		GoogleClientID:    getEnv("GOOGLE_CLIENT_ID"),
-		GoogleSecret:      getEnv("GOOGLE_CLIENT_SECRET"),
-		GoogleCallbackURL: getEnv("GOOGLE_CALLBACK_URL"),
-		GitHubClientID:    getEnv("GITHUB_CLIENT_ID"),
-		GitHubSecret:      getEnv("GITHUB_CLIENT_SECRET"),
-		GitHubCallbackURL: getEnv("GITHUB_CALLBACK_URL"),
-		RedisURL:          getEnv("REDIS_URL"),
-		SessionKey:        getEnv("SESSION_KEY"),
+		DBHost:              getEnv("DB_HOST"),
+		DBUser:              getEnv("DB_USER"),
+		DBPassword:          getEnv("DB_PASSWORD"),
+		DBName:              getEnv("DB_NAME"),
+		DBPort:              getEnv("DB_PORT"),
+		GoogleClientID:      getEnv("GOOGLE_CLIENT_ID"),
+		GoogleSecret:        getEnv("GOOGLE_CLIENT_SECRET"),
+		GoogleCallbackURL:   getEnv("GOOGLE_CALLBACK_URL"),
+		GitHubClientID:      getEnv("GITHUB_CLIENT_ID"),
+		GitHubSecret:        getEnv("GITHUB_CLIENT_SECRET"),
+		GitHubCallbackURL:   getEnv("GITHUB_CALLBACK_URL"),
+		RedisURL:            getEnv("REDIS_URL"),
+		SessionKey:          getEnv("SESSION_KEY"),
+		CloudinaryCloudName: getEnv("CLOUDINARY_CLOUD_NAME"),
+		CloudinaryAPIKey:    getEnv("CLOUDINARY_API_KEY"),
+		CloudinaryAPISecret: getEnv("CLOUDINARY_API_SECRET"),
 		// SessionSecret:     getEnv("SESSION_SECRET"),
 	}
 }

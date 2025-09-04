@@ -7,6 +7,7 @@ import (
 	"github.com/joho/godotenv"
 	"ppgroup.m0chi.com/internal/config"
 	"ppgroup.m0chi.com/internal/routers"
+	"ppgroup.m0chi.com/internal/services"
 )
 
 func Server() *gin.Engine {
@@ -29,8 +30,15 @@ func Server() *gin.Engine {
 		panic("failed to run migrations: " + err.Error())
 	}
 
+	// Initialize ImageService with Cloudinary
+	imageService := services.NewImageService(
+		configVars.CloudinaryCloudName,
+		configVars.CloudinaryAPIKey,
+		configVars.CloudinaryAPISecret,
+	)
+
 	// Setup router
-	router := routers.SetupRouter(configVars, db)
+	router := routers.SetupRouter(configVars, db, imageService)
 
 	return router
 }

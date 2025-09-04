@@ -7,13 +7,16 @@ import (
 	"ppgroup.m0chi.com/internal/api"
 	"ppgroup.m0chi.com/internal/api/auth"
 	"ppgroup.m0chi.com/internal/config"
+	"ppgroup.m0chi.com/internal/repositories"
+	"ppgroup.m0chi.com/internal/services"
 )
 
-func SetupRouter(keys *config.Config, db *config.Database) *gin.Engine {
+func SetupRouter(keys *config.Config, db *config.Database, imageService *services.ImageService) *gin.Engine {
 	r := gin.Default()
 	// middleware to set database connection in the context
 	r.Use(func(c *gin.Context) {
 		c.Set("db", db)
+		c.Set("imageService", imageService)
 		c.Next()
 	})
 
@@ -35,6 +38,11 @@ func SetupRouter(keys *config.Config, db *config.Database) *gin.Engine {
 	r.GET("/auth/:provider", auth.AuthInit)
 	r.GET("/auth/:provider/callback", auth.AuthCallback)
 	r.POST("/auth/signout", auth.SignOut)
+
+	// Image upload route
+	imageHandler := repositories.NewImageHandler(imageService)
+	r.POST("/upload-images", imageHandler.UploadImages)
+
 	public := r.Group("/api/v1")
 	{
 		// Group of user routes
@@ -53,7 +61,8 @@ func SetupRouter(keys *config.Config, db *config.Database) *gin.Engine {
 		// Group of listings routes
 		listingRoutes := public.Group("/properties")
 		{
-			listingRoutes.POST("/add", api.CreateListing)
+			listingRoutes.POST("/add", api.CreateListing)          // Multipart form data with file upload
+			listingRoutes.POST("/add-json", api.CreateListingJSON) // JSON format for existing image URLs
 			listingRoutes.DELETE("/", api.DeleteListing)
 			listingRoutes.GET("/buy", api.GetListings)
 			listingRoutes.PATCH("/update", api.UpdateListing)

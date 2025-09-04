@@ -317,6 +317,9 @@ func UpdateListingRepo(entClient *ent.Client, data *ent.Listing) error {
 	if data.RealtorID != current.RealtorID {
 		updater = updater.SetRealtorID(data.RealtorID)
 	}
+	if data.Media != nil {
+		updater = updater.SetMedia(data.Media)
+	}
 
 	_, err = updater.Save(ctx)
 	if err != nil {

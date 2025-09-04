@@ -2,40 +2,327 @@ package api
 
 import (
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"ppgroup.m0chi.com/ent"
+	"ppgroup.m0chi.com/ent/listing"
+	"ppgroup.m0chi.com/ent/schema"
 	"ppgroup.m0chi.com/internal/repositories"
+	"ppgroup.m0chi.com/internal/services"
 )
 
 type ListingQueryParams = repositories.ListingQueryParams
 
-// CreateListing handles the creation of a new listing.
-// @Summary Create a new listing
-// @Description Create a new listing with the provided input data
+// CreateListing handles the creation of a new listing with image upload.
+// @Summary Create a new listing with images
+// @Description Create a new listing with multipart form data including images
+// @Tags listings
+// @Accept multipart/form-data
+// @Produce json
+// @Param title formData string true "Listing title"
+// @Param address formData string true "Property address"
+// @Param city formData string true "City"
+// @Param state formData string true "State (2 letters)"
+// @Param zip_code formData string true "ZIP code"
+// @Param description formData string false "Property description"
+// @Param price formData number true "Property price"
+// @Param bedroom formData int true "Number of bedrooms"
+// @Param bathroom formData number true "Number of bathrooms"
+// @Param garage formData int false "Number of garage spaces"
+// @Param sqft formData int true "Square footage"
+// @Param type_of_property formData string true "Type of property" Enums(house, apartment, condo, townhouse)
+// @Param lot_size formData int false "Lot size"
+// @Param pool formData bool false "Has pool"
+// @Param year_built formData int true "Year built"
+// @Param realtor_id formData string true "Realtor UUID"
+// @Param images formData file false "Property images (multiple files allowed)"
+// @Success 201 {object} gin.H{"status": "OK", "message": "Listing created!", "data": object}
+// @Failure 400 {object} gin.H{"error": "Invalid input", "message": string}
+// @Failure 500 {object} gin.H{"error": "Failed to create listing", "message": string}
+// @Router /properties/add [post]
+func CreateListing(c *gin.Context) {
+	// Parse multipart form
+	err := c.Request.ParseMultipartForm(32 << 20) // 32 MB max
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse multipart form", "message": err.Error()})
+		return
+	}
+
+	// Get form values
+	title := c.PostForm("title")
+	address := c.PostForm("address")
+	city := c.PostForm("city")
+	state := c.PostForm("state")
+	zipCode := c.PostForm("zip_code")
+	description := c.PostForm("description")
+	priceStr := c.PostForm("price")
+	bedroomStr := c.PostForm("bedroom")
+	bathroomStr := c.PostForm("bathroom")
+	garageStr := c.PostForm("garage")
+	sqftStr := c.PostForm("sqft")
+	typeOfPropertyStr := c.PostForm("type_of_property")
+	lotSizeStr := c.PostForm("lot_size")
+	poolStr := c.PostForm("pool")
+	yearBuiltStr := c.PostForm("year_built")
+	realtorIDStr := c.PostForm("realtor_id")
+
+	// Validate required fields
+	if title == "" || address == "" || city == "" || state == "" || zipCode == "" ||
+		priceStr == "" || bedroomStr == "" || bathroomStr == "" || sqftStr == "" ||
+		typeOfPropertyStr == "" || yearBuiltStr == "" || realtorIDStr == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing required fields"})
+		return
+	}
+
+	// Parse numeric fields
+	price, err := decimal.NewFromString(priceStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid price format"})
+		return
+	}
+
+	bedroom, err := strconv.Atoi(bedroomStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid bedroom format"})
+		return
+	}
+
+	bathroom, err := strconv.ParseFloat(bathroomStr, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid bathroom format"})
+		return
+	}
+
+	sqft, err := strconv.Atoi(sqftStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid sqft format"})
+		return
+	}
+
+	yearBuilt, err := strconv.Atoi(yearBuiltStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid year_built format"})
+		return
+	}
+
+	realtorID, err := uuid.Parse(realtorIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid realtor_id format"})
+		return
+	}
+
+	// Parse optional fields
+	var garage int
+	if garageStr != "" {
+		garage, err = strconv.Atoi(garageStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid garage format"})
+			return
+		}
+	}
+
+	var lotSize int
+	if lotSizeStr != "" {
+		lotSize, err = strconv.Atoi(lotSizeStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid lot_size format"})
+			return
+		}
+	}
+
+	var pool bool
+	if poolStr != "" {
+		pool, err = strconv.ParseBool(poolStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid pool format"})
+			return
+		}
+	}
+
+	// Validate and convert type_of_property
+	var typeOfProperty listing.TypeOfProperty
+	switch strings.ToLower(typeOfPropertyStr) {
+	case "house":
+		typeOfProperty = listing.TypeOfPropertyHouse
+	case "apartment":
+		typeOfProperty = listing.TypeOfPropertyApartment
+	case "condo":
+		typeOfProperty = listing.TypeOfPropertyCondo
+	case "townhouse":
+		typeOfProperty = listing.TypeOfPropertyTownhouse
+	default:
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid type_of_property. Must be one of: house, apartment, condo, townhouse"})
+		return
+	}
+
+	// Handle image uploads
+	var mediaItems []schema.Media
+	imageService := c.MustGet("imageService").(*services.ImageService)
+
+	// Debug: Check if multipart form was parsed
+	if c.Request.MultipartForm == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Multipart form not parsed"})
+		return
+	}
+
+	// Debug: Check what files are available
+	files := c.Request.MultipartForm.File["images"]
+
+	// If no files with "images" key, try other common variations
+	if len(files) == 0 {
+		// Try singular "image"
+		files = c.Request.MultipartForm.File["image"]
+	}
+
+	// Only proceed with image processing if we have actual files
+	if len(files) > 0 {
+		for i, fileHeader := range files {
+			// Validate file type
+			if !isValidImageType(fileHeader.Filename) {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"error": "Invalid file type: " + fileHeader.Filename,
+				})
+				return
+			}
+
+			// Open file
+			file, err := fileHeader.Open()
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to open file: " + fileHeader.Filename})
+				return
+			}
+			defer file.Close()
+
+			// Upload to Cloudinary
+			url, err := imageService.UploadImage(c.Request.Context(), file, fileHeader.Filename)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to upload image to Cloudinary: " + err.Error()})
+				return
+			}
+
+			// Verify URL is not empty
+			if url == "" {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Image upload returned empty URL"})
+				return
+			}
+
+			// Create media item
+			mediaItem := schema.Media{
+				URL:       url,
+				Type:      "image",
+				Caption:   "",     // You can add caption support later
+				IsPrimary: i == 0, // First image is primary
+			}
+			mediaItems = append(mediaItems, mediaItem)
+		}
+	}
+
+	// Create listing entity
+	listing := &ent.Listing{
+		Title:          title,
+		Address:        address,
+		City:           city,
+		State:          state,
+		ZipCode:        zipCode,
+		Description:    description,
+		Price:          price,
+		Bedroom:        bedroom,
+		Bathroom:       bathroom,
+		Garage:         garage,
+		Sqft:           sqft,
+		TypeOfProperty: typeOfProperty,
+		LotSize:        lotSize,
+		Pool:           pool,
+		YearBuilt:      yearBuilt,
+		Media:          mediaItems,
+		RealtorID:      realtorID,
+		Status:         listing.StatusDRAFT, // Default status
+	}
+
+	// Save to database
+	entClient := c.MustGet("entClient").(*ent.Client)
+	err = repositories.CreateListingRepo(entClient, listing)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create listing", "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"status":  "OK",
+		"message": "Listing created successfully!",
+		"data": gin.H{
+			"title":           listing.Title,
+			"address":         listing.Address,
+			"uploaded_images": len(mediaItems),
+		},
+	})
+}
+
+// CreateListingJSON handles the creation of a new listing with JSON input (for pre-existing image URLs).
+// @Summary Create a new listing with JSON
+// @Description Create a new listing using JSON format with existing image URLs
 // @Tags listings
 // @Accept json
 // @Produce json
-// @Param input body repositories.CreateListingInput true "Listing input data"
-// @Success 201 {object} gin.H{"status": "OK", "data": "Listing created!"}
-// @Failure 400 {object} gin.H{"error": "Invalid input", "message": "Please provide required fields"}
-// @Failure 500 {object} gin.H{"error": "Failed to create listing", "message": "Error message"}
-// @Router /listings [post]
-func CreateListing(c *gin.Context) {
+// @Param input body ent.Listing true "Listing input data"
+// @Success 201 {object} gin.H{"status": "OK", "message": "Listing created!", "data": object}
+// @Failure 400 {object} gin.H{"error": "Invalid input", "message": string}
+// @Failure 500 {object} gin.H{"error": "Failed to create listing", "message": string}
+// @Router /properties/add-json [post]
+func CreateListingJSON(c *gin.Context) {
 	var input *ent.Listing
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input", "message": "Please provide required fields" + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input", "message": "Please provide required fields: " + err.Error()})
 		return
 	}
+
+	// Validate required fields
+	if input.Title == "" || input.Address == "" || input.City == "" || input.State == "" ||
+		input.ZipCode == "" || input.Price.IsZero() || input.Bedroom == 0 ||
+		input.Bathroom == 0 || input.Sqft == 0 || input.YearBuilt == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing required fields"})
+		return
+	}
+
+	// Set default status if not provided
+	if input.Status == "" {
+		input.Status = listing.StatusDRAFT
+	}
+
 	// Create listing
 	entClient := c.MustGet("entClient").(*ent.Client)
-
 	err := repositories.CreateListingRepo(entClient, input)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create listing, please check your input", "message": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create listing", "message": err.Error()})
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"status": "OK", "message": "Listing created!"})
+
+	c.JSON(http.StatusCreated, gin.H{
+		"status":  "OK",
+		"message": "Listing created successfully!",
+		"data": gin.H{
+			"title":       input.Title,
+			"address":     input.Address,
+			"media_count": len(input.Media),
+		},
+	})
+}
+
+// isValidImageType checks if the file has a valid image extension
+func isValidImageType(filename string) bool {
+	validTypes := []string{".jpg", ".jpeg", ".png", ".gif", ".webp"}
+	filename = strings.ToLower(filename)
+
+	for _, ext := range validTypes {
+		if strings.HasSuffix(filename, ext) {
+			return true
+		}
+	}
+	return false
 }
 
 // GetListings handles the retrieval of paginated property listings.
