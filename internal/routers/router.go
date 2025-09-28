@@ -4,11 +4,11 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"ppgroup.m0chi.com/internal/api"
-	"ppgroup.m0chi.com/internal/api/auth"
-	"ppgroup.m0chi.com/internal/config"
-	"ppgroup.m0chi.com/internal/repositories"
-	"ppgroup.m0chi.com/internal/services"
+	"ppgroup.ppgroup.com/internal/api"
+	"ppgroup.ppgroup.com/internal/api/auth"
+	"ppgroup.ppgroup.com/internal/config"
+	"ppgroup.ppgroup.com/internal/repositories"
+	"ppgroup.ppgroup.com/internal/services"
 )
 
 func SetupRouter(keys *config.Config, db *config.Database, imageService *services.ImageService) *gin.Engine {

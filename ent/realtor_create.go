@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"ppgroup.m0chi.com/ent/listing"
-	"ppgroup.m0chi.com/ent/realtor"
+	"ppgroup.ppgroup.com/ent/listing"
+	"ppgroup.ppgroup.com/ent/realtor"
 )
 
 // RealtorCreate is the builder for creating a Realtor entity.

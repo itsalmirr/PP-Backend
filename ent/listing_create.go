@@ -12,9 +12,9 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
-	"ppgroup.m0chi.com/ent/listing"
-	"ppgroup.m0chi.com/ent/realtor"
-	"ppgroup.m0chi.com/ent/schema"
+	"ppgroup.ppgroup.com/ent/listing"
+	"ppgroup.ppgroup.com/ent/realtor"
+	"ppgroup.ppgroup.com/ent/schema"
 )
 
 // ListingCreate is the builder for creating a Listing entity.

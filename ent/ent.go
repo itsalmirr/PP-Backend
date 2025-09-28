@@ -12,9 +12,9 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"ppgroup.m0chi.com/ent/listing"
-	"ppgroup.m0chi.com/ent/realtor"
-	"ppgroup.m0chi.com/ent/user"
+	"ppgroup.ppgroup.com/ent/listing"
+	"ppgroup.ppgroup.com/ent/realtor"
+	"ppgroup.ppgroup.com/ent/user"
 )
 
 // ent aliases to avoid import conflicts in user's code.

@@ -11,7 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"ppgroup.m0chi.com/ent/user"
+	"ppgroup.ppgroup.com/ent/user"
 )
 
 // UserCreate is the builder for creating a User entity.

@@ -13,11 +13,11 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
-	"ppgroup.m0chi.com/ent/listing"
-	"ppgroup.m0chi.com/ent/predicate"
-	"ppgroup.m0chi.com/ent/realtor"
-	"ppgroup.m0chi.com/ent/schema"
-	"ppgroup.m0chi.com/ent/user"
+	"ppgroup.ppgroup.com/ent/listing"
+	"ppgroup.ppgroup.com/ent/predicate"
+	"ppgroup.ppgroup.com/ent/realtor"
+	"ppgroup.ppgroup.com/ent/schema"
+	"ppgroup.ppgroup.com/ent/user"
 )
 
 const (

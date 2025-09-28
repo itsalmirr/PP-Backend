@@ -14,10 +14,10 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
-	"ppgroup.m0chi.com/ent/listing"
-	"ppgroup.m0chi.com/ent/predicate"
-	"ppgroup.m0chi.com/ent/realtor"
-	"ppgroup.m0chi.com/ent/schema"
+	"ppgroup.ppgroup.com/ent/listing"
+	"ppgroup.ppgroup.com/ent/predicate"
+	"ppgroup.ppgroup.com/ent/realtor"
+	"ppgroup.ppgroup.com/ent/schema"
 )
 
 // ListingUpdate is the builder for updating Listing entities.

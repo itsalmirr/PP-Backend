@@ -8,11 +8,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
-	"ppgroup.m0chi.com/ent"
-	"ppgroup.m0chi.com/ent/listing"
-	"ppgroup.m0chi.com/ent/schema"
-	"ppgroup.m0chi.com/internal/repositories"
-	"ppgroup.m0chi.com/internal/services"
+	"ppgroup.ppgroup.com/ent"
+	"ppgroup.ppgroup.com/ent/listing"
+	"ppgroup.ppgroup.com/ent/schema"
+	"ppgroup.ppgroup.com/internal/repositories"
+	"ppgroup.ppgroup.com/internal/services"
 )
 
 type ListingQueryParams = repositories.ListingQueryParams

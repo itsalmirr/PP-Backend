@@ -5,9 +5,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"ppgroup.m0chi.com/internal/config"
-	"ppgroup.m0chi.com/internal/routers"
-	"ppgroup.m0chi.com/internal/services"
+	"ppgroup.ppgroup.com/internal/config"
+	"ppgroup.ppgroup.com/internal/routers"
+	"ppgroup.ppgroup.com/internal/services"
 )
 
 func Server() *gin.Engine {

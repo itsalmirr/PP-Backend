@@ -7,8 +7,8 @@ import (
 	"github.com/alexedwards/argon2id"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"ppgroup.m0chi.com/ent"
-	"ppgroup.m0chi.com/internal/repositories"
+	"ppgroup.ppgroup.com/ent"
+	"ppgroup.ppgroup.com/internal/repositories"
 )
 
 type SignInInput struct {

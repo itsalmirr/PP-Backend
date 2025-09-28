@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"ppgroup.m0chi.com/internal/services"
+	"ppgroup.ppgroup.com/internal/services"
 )
 
 type ImageHandler struct {

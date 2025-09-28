@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"ppgroup.m0chi.com/ent/listing"
-	"ppgroup.m0chi.com/ent/realtor"
-	"ppgroup.m0chi.com/ent/schema"
-	"ppgroup.m0chi.com/ent/user"
+	"ppgroup.ppgroup.com/ent/listing"
+	"ppgroup.ppgroup.com/ent/realtor"
+	"ppgroup.ppgroup.com/ent/schema"
+	"ppgroup.ppgroup.com/ent/user"
 )
 
 // The init function reads all schema descriptors with runtime code

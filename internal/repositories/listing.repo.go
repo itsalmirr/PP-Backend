@@ -7,8 +7,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
-	"ppgroup.m0chi.com/ent"
-	"ppgroup.m0chi.com/ent/listing"
+	"ppgroup.ppgroup.com/ent"
+	"ppgroup.ppgroup.com/ent/listing"
 )
 
 // ListingQueryParams holds parameters for querying listings.

@@ -1,4 +1,4 @@
-module ppgroup.m0chi.com
+module ppgroup.ppgroup.com
 
 go 1.24.6
 

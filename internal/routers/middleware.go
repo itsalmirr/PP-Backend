@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"ppgroup.m0chi.com/internal/config"
+	"ppgroup.ppgroup.com/internal/config"
 )
 
 func AuthMiddleware() gin.HandlerFunc {

@@ -10,7 +10,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"ppgroup.m0chi.com/ent/user"
+	"ppgroup.ppgroup.com/ent/user"
 )
 
 // User is the model entity for the User schema.

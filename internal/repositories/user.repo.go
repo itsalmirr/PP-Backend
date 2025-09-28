@@ -5,8 +5,8 @@ import (
 	"errors"
 
 	"github.com/alexedwards/argon2id"
-	"ppgroup.m0chi.com/ent"
-	"ppgroup.m0chi.com/ent/user"
+	"ppgroup.ppgroup.com/ent"
+	"ppgroup.ppgroup.com/ent/user"
 )
 
 // CreateUserInput represents the input data for creating a new user
