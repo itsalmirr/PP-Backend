@@ -8,10 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func init() {
-	gin.SetMode(gin.TestMode)
-}
-
 func TestGenerateOAuthPassword_Success(t *testing.T) {
 	pw, err := generateOAuthPassword()
 	if err != nil {
@@ -66,19 +62,17 @@ func TestGetFrontendURL_WrongType(t *testing.T) {
 	}
 }
 
-func TestAuthCallback_MissingDB(t *testing.T) {
+func TestAuthCallback_AuthFailure(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 	c.Request = httptest.NewRequest("GET", "/auth/google/callback", nil)
 	c.Params = gin.Params{{Key: "provider", Value: "google"}}
 
-	// AuthCallback needs gothic to complete auth first, which will fail
-	// without a proper OAuth session. This tests that the handler doesn't
-	// panic even when called with minimal context.
+	// Without a valid OAuth session, gothic.CompleteUserAuth fails and
+	// AuthCallback returns 401 before reaching the db lookup.
 	AuthCallback(c)
 
-	// Should get an error response, not a panic
-	if w.Code != http.StatusUnauthorized && w.Code != http.StatusInternalServerError {
-		t.Errorf("expected 401 or 500, got %d", w.Code)
+	if w.Code != http.StatusUnauthorized {
+		t.Errorf("expected status %d, got %d", http.StatusUnauthorized, w.Code)
 	}
 }
