@@ -31,7 +31,7 @@ func EmailSignIn(c *gin.Context) {
 
 	// Check if user exists
 	entClient := c.MustGet("entClient").(*ent.Client)
-	user, err := repositories.GetUserRepo(entClient, input.Email)
+	user, err := repositories.GetUserRepo(c.Request.Context(), entClient, input.Email)
 	if err != nil {
 		log.Printf("Error finding user '%s': %v", input.Email, err)
 		c.JSON(http.StatusUnauthorized, gin.H{
