@@ -108,6 +108,29 @@ func TestValidateImageFile_ExecutableFile(t *testing.T) {
 	}
 }
 
+func TestValidateImageFile_SmallFile(t *testing.T) {
+	// File smaller than 512 bytes — Read returns io.EOF with valid data
+	file := newFakeFile(jpegHeader) // only 4 bytes
+	valid, err := ValidateImageFile(file)
+	if err != nil {
+		t.Fatalf("unexpected error for small file: %v", err)
+	}
+	if !valid {
+		t.Error("expected small JPEG to be valid")
+	}
+}
+
+func TestValidateImageFile_EmptyFile(t *testing.T) {
+	file := newFakeFile([]byte{})
+	valid, err := ValidateImageFile(file)
+	if err != nil {
+		t.Fatalf("unexpected error for empty file: %v", err)
+	}
+	if valid {
+		t.Error("expected empty file to be invalid")
+	}
+}
+
 func TestValidateImageFile_SpoofedExtension(t *testing.T) {
 	// A file named "image.jpg" but actually a text file
 	data := make([]byte, 512)
