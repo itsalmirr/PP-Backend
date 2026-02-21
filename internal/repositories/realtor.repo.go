@@ -3,28 +3,16 @@ package repositories
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"ppgroup.ppgroup.com/ent"
 	"ppgroup.ppgroup.com/ent/realtor"
 )
 
-// CreateRealtorRepository creates a new realtor record in the database.
-// It first checks if a realtor with the given email or phone already exists.
-// If such a realtor exists, it returns an error.
-// If not, it creates a new realtor record with the provided data.
-// The operation is performed within a transaction to ensure atomicity.
-//
-// Parameters:
-//   - data: CreateRealtorInput containing the details of the realtor to be created.
-//
-// Returns:
-//   - error: An error if the realtor already exists or if the creation fails, otherwise nil.
-func CreateRealtorRepo(entClient *ent.Client, data *ent.Realtor) error {
-	ctx := context.Background()
-
+func CreateRealtorRepo(ctx context.Context, entClient *ent.Client, data *ent.Realtor) error {
 	exists, err := entClient.Realtor.Query().Where(realtor.Or(realtor.EmailEQ(data.Email), realtor.PhoneEQ(data.Phone))).Exist(ctx)
 	if err != nil {
-		return err
+		return fmt.Errorf("checking realtor existence: %w", err)
 	}
 
 	if exists {
@@ -34,50 +22,40 @@ func CreateRealtorRepo(entClient *ent.Client, data *ent.Realtor) error {
 	// Start a transaction
 	tx, err := entClient.Tx(ctx)
 	if err != nil {
-		return err
+		return fmt.Errorf("starting transaction: %w", err)
 	}
 
-	// Create a new realtor
-	_, err = tx.Realtor.Create().SetEmail(data.Email).SetFullName(data.FullName).SetPhone(data.Phone).SetIsMvp(data.IsMvp).Save(context.Background())
+	_, err = tx.Realtor.Create().SetEmail(data.Email).SetFullName(data.FullName).SetPhone(data.Phone).SetIsMvp(data.IsMvp).Save(ctx)
 	if err != nil {
-		tx.Rollback()
-		return errors.New("failed to create realtor" + err.Error())
+		if rerr := tx.Rollback(); rerr != nil {
+			return fmt.Errorf("rollback failed: %v (original: %w)", rerr, err)
+		}
+		return fmt.Errorf("creating realtor: %w", err)
 	}
 
-	// Commit the transaction
 	if err := tx.Commit(); err != nil {
-		return errors.New("failed to commit transaction")
+		return fmt.Errorf("committing transaction: %w", err)
 	}
 
 	return nil
 }
 
-// GetRealtorRepository retrieves a realtor record from the database based on the provided email.
-// It returns a models.Realtor object and an error if any occurred during the query.
-// If the realtor is not found, it returns an error indicating "user not found".
-// If there is any other error during the query, it returns an error indicating "failed to get user".
-func GetRealtorRepo(entClient *ent.Client, email string) (*ent.Realtor, error) {
-	ctx := context.Background()
-
-	realtor, err := entClient.Realtor.Query().Where(realtor.EmailEQ(email)).First(ctx)
+func GetRealtorRepo(ctx context.Context, entClient *ent.Client, email string) (*ent.Realtor, error) {
+	r, err := entClient.Realtor.Query().Where(realtor.EmailEQ(email)).First(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, errors.New("realtor not found")
 		}
-		return nil, errors.New("failed to get realtor")
+		return nil, fmt.Errorf("querying realtor: %w", err)
 	}
 
-	return realtor, nil
+	return r, nil
 }
 
-func GetRealtorsRepo(entClient *ent.Client) ([]*ent.Realtor, error) {
-	ctx := context.Background()
-
-	// Get all realtors from database
+func GetRealtorsRepo(ctx context.Context, entClient *ent.Client) ([]*ent.Realtor, error) {
 	realtors, err := entClient.Realtor.Query().All(ctx)
-
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("querying realtors: %w", err)
 	}
 
 	return realtors, nil

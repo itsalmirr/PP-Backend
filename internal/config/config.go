@@ -1,6 +1,10 @@
 package config
 
-import "os"
+import (
+	"fmt"
+	"os"
+	"strings"
+)
 
 type Config struct {
 	DBHost              string
@@ -19,35 +23,50 @@ type Config struct {
 	CloudinaryCloudName string
 	CloudinaryAPIKey    string
 	CloudinaryAPISecret string
-	// SessionSecret     string
+	FrontendURL         string
+	CookieSecure        bool
 }
 
-func LoadConfig() *Config {
-	return &Config{
-		DBHost:              getEnv("DB_HOST"),
-		DBUser:              getEnv("DB_USER"),
-		DBPassword:          getEnv("DB_PASSWORD"),
-		DBName:              getEnv("DB_NAME"),
-		DBPort:              getEnv("DB_PORT"),
-		GoogleClientID:      getEnv("GOOGLE_CLIENT_ID"),
-		GoogleSecret:        getEnv("GOOGLE_CLIENT_SECRET"),
-		GoogleCallbackURL:   getEnv("GOOGLE_CALLBACK_URL"),
-		GitHubClientID:      getEnv("GITHUB_CLIENT_ID"),
-		GitHubSecret:        getEnv("GITHUB_CLIENT_SECRET"),
-		GitHubCallbackURL:   getEnv("GITHUB_CALLBACK_URL"),
-		RedisURL:            getEnv("REDIS_URL"),
-		SessionKey:          getEnv("SESSION_KEY"),
-		CloudinaryCloudName: getEnv("CLOUDINARY_CLOUD_NAME"),
-		CloudinaryAPIKey:    getEnv("CLOUDINARY_API_KEY"),
-		CloudinaryAPISecret: getEnv("CLOUDINARY_API_SECRET"),
-		// SessionSecret:     getEnv("SESSION_SECRET"),
+func LoadConfig() (*Config, error) {
+	var missing []string
+	get := func(key string) string {
+		value, exists := os.LookupEnv(key)
+		if !exists {
+			missing = append(missing, key)
+		}
+		return value
 	}
-}
 
-func getEnv(key string) string {
-	value, exists := os.LookupEnv(key)
-	if !exists {
-		panic("Environment variable " + key + " not found")
+	cfg := &Config{
+		DBHost:              get("DB_HOST"),
+		DBUser:              get("DB_USER"),
+		DBPassword:          get("DB_PASSWORD"),
+		DBName:              get("DB_NAME"),
+		DBPort:              get("DB_PORT"),
+		GoogleClientID:      get("GOOGLE_CLIENT_ID"),
+		GoogleSecret:        get("GOOGLE_CLIENT_SECRET"),
+		GoogleCallbackURL:   get("GOOGLE_CALLBACK_URL"),
+		GitHubClientID:      get("GITHUB_CLIENT_ID"),
+		GitHubSecret:        get("GITHUB_CLIENT_SECRET"),
+		GitHubCallbackURL:   get("GITHUB_CALLBACK_URL"),
+		RedisURL:            get("REDIS_URL"),
+		SessionKey:          get("SESSION_KEY"),
+		CloudinaryCloudName: get("CLOUDINARY_CLOUD_NAME"),
+		CloudinaryAPIKey:    get("CLOUDINARY_API_KEY"),
+		CloudinaryAPISecret: get("CLOUDINARY_API_SECRET"),
 	}
-	return value
+
+	if len(missing) > 0 {
+		return nil, fmt.Errorf("missing required environment variables: %s", strings.Join(missing, ", "))
+	}
+
+	// Optional config with defaults
+	cfg.FrontendURL = os.Getenv("FRONTEND_URL")
+	if cfg.FrontendURL == "" {
+		cfg.FrontendURL = "http://localhost:3000"
+	}
+
+	cfg.CookieSecure = os.Getenv("COOKIE_SECURE") == "true"
+
+	return cfg, nil
 }

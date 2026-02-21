@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/hex"
+	"fmt"
 
 	"github.com/gorilla/sessions"
 	"github.com/markbates/goth"
@@ -10,7 +11,7 @@ import (
 	"github.com/markbates/goth/providers/google"
 )
 
-func InitOAuth(cfg *Config) {
+func InitOAuth(cfg *Config) error {
 	goth.UseProviders(
 		google.New(
 			cfg.GoogleClientID,
@@ -30,8 +31,9 @@ func InitOAuth(cfg *Config) {
 
 	key, err := hex.DecodeString(cfg.SessionKey)
 	if err != nil {
-		panic("Invalid session secret: " + err.Error())
+		return fmt.Errorf("decoding session secret: %w", err)
 	}
 	store := sessions.NewCookieStore(key)
 	gothic.Store = store
+	return nil
 }

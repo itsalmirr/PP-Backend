@@ -3,24 +3,23 @@ package repositories
 import (
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"ppgroup.ppgroup.com/internal/services"
+	"ppgroup.ppgroup.com/internal/util"
 )
 
 type ImageHandler struct {
-	imageService *services.ImageService // or *services.S3Service
+	imageService services.ImageUploader
 }
 
-func NewImageHandler(imageService *services.ImageService) *ImageHandler {
+func NewImageHandler(imageService services.ImageUploader) *ImageHandler {
 	return &ImageHandler{
 		imageService: imageService,
 	}
 }
 
 func (h *ImageHandler) UploadImages(c *gin.Context) {
-	// Parse multipart form
 	err := c.Request.ParseMultipartForm(10 << 20) // 10 MB max
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse form"})
@@ -36,15 +35,6 @@ func (h *ImageHandler) UploadImages(c *gin.Context) {
 	var uploadedURLs []string
 
 	for _, fileHeader := range files {
-		// Validate file type
-		if !isValidImageType(fileHeader.Filename) {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": fmt.Sprintf("Invalid file type: %s", fileHeader.Filename),
-			})
-			return
-		}
-
-		// Open file
 		file, err := fileHeader.Open()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to open file"})
@@ -52,10 +42,22 @@ func (h *ImageHandler) UploadImages(c *gin.Context) {
 		}
 		defer file.Close()
 
-		// Upload to cloud storage
+		// Validate by MIME type (magic bytes), not extension
+		valid, err := util.ValidateImageFile(file)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to validate file"})
+			return
+		}
+		if !valid {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": fmt.Sprintf("Invalid file type: %s. Accepted: JPEG, PNG, GIF, WebP", fileHeader.Filename),
+			})
+			return
+		}
+
 		url, err := h.imageService.UploadImage(c.Request.Context(), file, fileHeader.Filename)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to upload image"})
 			return
 		}
 
@@ -66,16 +68,4 @@ func (h *ImageHandler) UploadImages(c *gin.Context) {
 		"message": "Images uploaded successfully",
 		"urls":    uploadedURLs,
 	})
-}
-
-func isValidImageType(filename string) bool {
-	validTypes := []string{".jpg", ".jpeg", ".png", ".gif", ".webp"}
-	filename = strings.ToLower(filename)
-
-	for _, ext := range validTypes {
-		if strings.HasSuffix(filename, ext) {
-			return true
-		}
-	}
-	return false
 }
