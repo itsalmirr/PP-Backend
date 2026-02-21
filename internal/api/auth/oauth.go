@@ -83,7 +83,11 @@ func AuthCallback(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		return
 	}
-	db := val.(*config.Database)
+	db, ok := val.(*config.Database)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		return
+	}
 
 	existingUser, err := db.Client.User.Query().
 		Where(user.ProviderEQ(oauthUser.Provider), user.ProviderIDEQ(oauthUser.UserID)).
