@@ -8,6 +8,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func init() {
+	gin.SetMode(gin.TestMode)
+}
+
 func TestGenerateOAuthPassword_Success(t *testing.T) {
 	pw, err := generateOAuthPassword()
 	if err != nil {
