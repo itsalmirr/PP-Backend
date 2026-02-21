@@ -31,7 +31,11 @@ func EmailSignIn(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		return
 	}
-	entClient := val.(*ent.Client)
+	entClient, ok := val.(*ent.Client)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		return
+	}
 
 	user, err := repositories.GetUserRepo(c.Request.Context(), entClient, input.Email)
 	if err != nil {
