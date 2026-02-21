@@ -21,6 +21,7 @@ func SetupRouter(cfg *config.Config, db *config.Database, imageService *services
 	r.Use(func(c *gin.Context) {
 		c.Set("db", db)
 		c.Set("imageService", imageService)
+		c.Set("frontendURL", cfg.FrontendURL)
 		c.Next()
 	})
 
