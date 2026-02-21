@@ -1,6 +1,7 @@
 package api
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -17,11 +18,16 @@ func CreateRealtor(c *gin.Context) {
 		})
 		return
 	}
-	entClient := c.MustGet("entClient").(*ent.Client)
+
+	entClient, ok := getEntClient(c)
+	if !ok {
+		return
+	}
 
 	err := repositories.CreateRealtorRepo(c.Request.Context(), entClient, input)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create realtor", "message": err.Error()})
+		slog.Error("failed to create realtor", "error", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create realtor"})
 		return
 	}
 
@@ -30,28 +36,31 @@ func CreateRealtor(c *gin.Context) {
 
 func GetRealtor(c *gin.Context) {
 	email := c.Param("email")
-	entClient := c.MustGet("entClient").(*ent.Client)
+
+	entClient, ok := getEntClient(c)
+	if !ok {
+		return
+	}
 
 	realtor, err := repositories.GetRealtorRepo(c.Request.Context(), entClient, email)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "Failed to get realtor",
-			"message": err.Error(),
-		})
+		slog.Error("failed to get realtor", "email", email, "error", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get realtor"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"data": realtor})
 }
 
 func GetRealtors(c *gin.Context) {
-	entClient := c.MustGet("entClient").(*ent.Client)
+	entClient, ok := getEntClient(c)
+	if !ok {
+		return
+	}
 
 	realtors, err := repositories.GetRealtorsRepo(c.Request.Context(), entClient)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "Failed to get realtors",
-			"message": err.Error(),
-		})
+		slog.Error("failed to get realtors", "error", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get realtors"})
 		return
 	}
 
