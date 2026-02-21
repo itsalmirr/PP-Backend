@@ -31,7 +31,7 @@ func CreateUser(c *gin.Context) {
 	}
 
 	entClient := c.MustGet("entClient").(*ent.Client)
-	err := repositories.CreateUserRepo(entClient, &input)
+	err := repositories.CreateUserRepo(c.Request.Context(), entClient, &input)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to create user",
@@ -60,7 +60,7 @@ func Dashboard(c *gin.Context) {
 		return
 	}
 	entClient := c.MustGet("entClient").(*ent.Client)
-	user, err := repositories.GetUserRepo(entClient, email)
+	user, err := repositories.GetUserRepo(c.Request.Context(), entClient, email)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user", "message": err.Error()})
 		return

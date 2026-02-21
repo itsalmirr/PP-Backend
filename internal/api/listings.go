@@ -238,7 +238,7 @@ func CreateListing(c *gin.Context) {
 
 	// Save to database
 	entClient := c.MustGet("entClient").(*ent.Client)
-	err = repositories.CreateListingRepo(entClient, listing)
+	err = repositories.CreateListingRepo(c.Request.Context(), entClient, listing)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create listing", "message": err.Error()})
 		return
@@ -288,7 +288,7 @@ func CreateListingJSON(c *gin.Context) {
 
 	// Create listing
 	entClient := c.MustGet("entClient").(*ent.Client)
-	err := repositories.CreateListingRepo(entClient, input)
+	err := repositories.CreateListingRepo(c.Request.Context(), entClient, input)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create listing", "message": err.Error()})
 		return
@@ -352,7 +352,7 @@ func GetListings(c *gin.Context) {
 
 	entClient := c.MustGet("entClient").(*ent.Client)
 	// Get listings from repo
-	listings, meta, err := repositories.GetListingsRepo(entClient, params)
+	listings, meta, err := repositories.GetListingsRepo(c.Request.Context(), entClient, params)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to retrive listings",
@@ -395,7 +395,7 @@ func DeleteListing(c *gin.Context) {
 	}
 
 	entClient := c.MustGet("entClient").(*ent.Client)
-	err := repositories.DeleteListing(entClient, ID)
+	err := repositories.DeleteListing(c.Request.Context(), entClient, ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to delete listing",
@@ -430,7 +430,7 @@ func UpdateListing(c *gin.Context) {
 
 	entClient := c.MustGet("entClient").(*ent.Client)
 
-	err := repositories.UpdateListingRepo(entClient, input)
+	err := repositories.UpdateListingRepo(c.Request.Context(), entClient, input)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update listing", "message": err.Error()})
 		return

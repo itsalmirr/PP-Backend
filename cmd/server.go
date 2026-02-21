@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -10,35 +11,42 @@ import (
 	"ppgroup.ppgroup.com/internal/services"
 )
 
-func Server() *gin.Engine {
-	err := godotenv.Load()
+func Server() (*gin.Engine, *config.Database, error) {
+	// .env is optional in production (env vars set externally)
+	_ = godotenv.Load()
+
+	configVars, err := config.LoadConfig()
 	if err != nil {
-		panic("Error loading .env file")
+		return nil, nil, fmt.Errorf("loading config: %w", err)
 	}
 
-	configVars := config.LoadConfig()
 	ctx := context.Background()
 
-	// Connect to database
 	db, err := config.ConnectDatabase(ctx, configVars)
 	if err != nil {
-		panic("failed to connect database" + err.Error())
+		return nil, nil, fmt.Errorf("connecting to database: %w", err)
 	}
 
-	// Run migrations
 	if err := db.Migrate(ctx); err != nil {
-		panic("failed to run migrations: " + err.Error())
+		db.Close()
+		return nil, nil, fmt.Errorf("running migrations: %w", err)
 	}
 
-	// Initialize ImageService with Cloudinary
-	imageService := services.NewImageService(
+	imageService, err := services.NewImageService(
 		configVars.CloudinaryCloudName,
 		configVars.CloudinaryAPIKey,
 		configVars.CloudinaryAPISecret,
 	)
+	if err != nil {
+		db.Close()
+		return nil, nil, fmt.Errorf("initializing image service: %w", err)
+	}
 
-	// Setup router
-	router := routers.SetupRouter(configVars, db, imageService)
+	router, err := routers.SetupRouter(configVars, db, imageService)
+	if err != nil {
+		db.Close()
+		return nil, nil, fmt.Errorf("setting up router: %w", err)
+	}
 
-	return router
+	return router, db, nil
 }

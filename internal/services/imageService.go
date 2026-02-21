@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"mime/multipart"
 	"path/filepath"
@@ -12,29 +13,34 @@ import (
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 )
 
+// ImageUploader defines the interface for image upload operations.
+type ImageUploader interface {
+	UploadImage(ctx context.Context, file multipart.File, filename string) (string, error)
+}
+
 type ImageService struct {
 	cloudinary *cloudinary.Cloudinary
 }
 
-func NewImageService(cloudName, apiKey, apiSecret string) *ImageService {
-	// Add validation for empty credentials
+func NewImageService(cloudName, apiKey, apiSecret string) (*ImageService, error) {
 	if cloudName == "" || apiKey == "" || apiSecret == "" {
-		panic("Cloudinary credentials are required: cloudName, apiKey, apiSecret")
+		return nil, errors.New("cloudinary credentials are required: cloudName, apiKey, apiSecret")
 	}
 
 	cld, err := cloudinary.NewFromParams(cloudName, apiKey, apiSecret)
 	if err != nil {
-		panic(fmt.Sprintf("Failed to initialize Cloudinary: %v", err))
+		return nil, fmt.Errorf("initializing cloudinary: %w", err)
 	}
 
 	return &ImageService{
 		cloudinary: cld,
-	}
+	}, nil
 }
 
 func (s *ImageService) UploadImage(ctx context.Context, file multipart.File, filename string) (string, error) {
-	// Reset file pointer to beginning
-	file.Seek(0, 0)
+	if _, err := file.Seek(0, 0); err != nil {
+		return "", fmt.Errorf("resetting file pointer: %w", err)
+	}
 
 	publicID := generatePublicID(filename)
 
@@ -43,7 +49,7 @@ func (s *ImageService) UploadImage(ctx context.Context, file multipart.File, fil
 		Folder:   "real-estate-listings",
 	})
 	if err != nil {
-		return "", fmt.Errorf("failed to upload image to cloudinary: %w", err)
+		return "", fmt.Errorf("uploading image to cloudinary: %w", err)
 	}
 
 	if result == nil || result.SecureURL == "" {
