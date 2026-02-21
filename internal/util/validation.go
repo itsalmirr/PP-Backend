@@ -1,6 +1,7 @@
 package util
 
 import (
+	"io"
 	"mime/multipart"
 	"net/http"
 )
@@ -18,8 +19,11 @@ var validImageMIMETypes = map[string]bool{
 func ValidateImageFile(file multipart.File) (bool, error) {
 	buf := make([]byte, 512)
 	n, err := file.Read(buf)
-	if err != nil {
+	if err != nil && err != io.EOF {
 		return false, err
+	}
+	if n == 0 {
+		return false, nil
 	}
 
 	// Reset file pointer for subsequent reads
