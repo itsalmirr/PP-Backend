@@ -28,13 +28,12 @@ func getFrontendURL(c *gin.Context) string {
 
 // generateOAuthPassword creates a random password for OAuth users
 // instead of a predictable placeholder.
-func generateOAuthPassword() string {
+func generateOAuthPassword() (string, error) {
 	b := make([]byte, 32)
 	if _, err := rand.Read(b); err != nil {
-		// Fallback — still better than a static string
-		return fmt.Sprintf("oauth-%d", b[0])
+		return "", fmt.Errorf("generating random password: %w", err)
 	}
-	return hex.EncodeToString(b)
+	return hex.EncodeToString(b), nil
 }
 
 func AuthInit(c *gin.Context) {
@@ -95,6 +94,12 @@ func AuthCallback(c *gin.Context) {
 
 	if err != nil {
 		if ent.IsNotFound(err) {
+			oauthPassword, pwErr := generateOAuthPassword()
+			if pwErr != nil {
+				slog.Error("failed to generate oauth password", "error", pwErr)
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+				return
+			}
 			newUser, createErr := db.Client.User.Create().
 				SetAvatar(oauthUser.AvatarURL).
 				SetEmail(oauthUser.Email).
@@ -102,7 +107,7 @@ func AuthCallback(c *gin.Context) {
 				SetUsername(oauthUser.Email).
 				SetProvider(provider).
 				SetProviderID(oauthUser.UserID).
-				SetPassword(generateOAuthPassword()).
+				SetPassword(oauthPassword).
 				Save(c.Request.Context())
 			if createErr != nil {
 				slog.Error("failed to create oauth user", "provider", provider, "error", createErr)
