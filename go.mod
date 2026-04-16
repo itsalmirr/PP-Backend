@@ -1,6 +1,6 @@
 module ppgroup.ppgroup.com
 
-go 1.24.11
+go 1.25.0
 
 require (
 	entgo.io/ent v0.14.5
@@ -11,7 +11,7 @@ require (
 	github.com/gin-gonic/gin v1.11.0
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/sessions v1.4.0
-	github.com/jackc/pgx/v5 v5.8.0
+	github.com/jackc/pgx/v5 v5.9.0
 	github.com/joho/godotenv v1.5.1
 	github.com/markbates/goth v1.82.0
 	github.com/shopspring/decimal v1.4.0
